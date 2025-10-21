@@ -11,8 +11,25 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import quote, urlencode
 import json
+from pydantic import BaseModel, Field, validator
+from requests_ratelimiter import Limiter, RequestRate
 
 logger = logging.getLogger(__name__)
+
+class ScrapingInput(BaseModel):
+    """Input validation for scraping requests"""
+    restaurant_name: str = Field(..., min_length=1, max_length=200, description="Restaurant name")
+    address: str = Field(..., min_length=1, max_length=500, description="Restaurant address")
+    county: str = Field(default="", max_length=100, description="County name")
+
+    @validator('restaurant_name', 'address', 'county')
+    def sanitize_string(cls, v):
+        if not v:
+            return v
+        # Remove potentially harmful characters
+        v = re.sub(r'[<>"/\\|?*]', '', v)
+        # Limit length and strip whitespace
+        return v.strip()[:200] if 'name' in cls.__name__.lower() else v.strip()[:500]
 
 @dataclass
 class SquareFootageResult:
@@ -29,7 +46,11 @@ class SquareFootageScraper:
     """Scraper for restaurant square footage information"""
 
     def __init__(self):
+        # Rate limiter: 10 requests per minute
+        rate_limiter = Limiter(RequestRate(10, 60))  # 10 requests per 60 seconds
         self.session = requests.Session()
+        self.session.mount('https://', rate_limiter)
+        self.session.mount('http://', rate_limiter)
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
@@ -75,7 +96,7 @@ class SquareFootageScraper:
         """Search Google and return top result URLs"""
         try:
             search_url = f"https://www.google.com/search?q={quote(query)}&num={num_results}"
-            response = self.session.get(search_url, timeout=10)
+            response = self.session.get(search_url, timeout=10, verify=True)
 
             if response.status_code != 200:
                 logger.warning(f"Google search failed with status {response.status_code}")
@@ -90,7 +111,7 @@ class SquareFootageScraper:
                 if href.startswith('/url?q='):
                     # Extract the actual URL from Google's redirect
                     url = href.split('/url?q=')[1].split('&')[0]
-                    if url.startswith('http') and 'google.com' not in url:
+                    if url.startswith('https') and 'google.com' not in url:  # Prefer HTTPS
                         urls.append(url)
                         if len(urls) >= num_results:
                             break
@@ -122,7 +143,7 @@ class SquareFootageScraper:
             search_query = f"{address} restaurant"
             search_url = f"{base_url}?q={quote(search_query)}"
 
-            response = self.session.get(search_url, timeout=15)
+            response = self.session.get(search_url, timeout=15, verify=True)
             if response.status_code == 200:
                 sqft = self._extract_square_footage_from_text(response.text)
                 if sqft:
@@ -143,7 +164,7 @@ class SquareFootageScraper:
             for url in urls:
                 if any(domain in url.lower() for domain in ['.com', '.net', '.org']):
                     try:
-                        response = self.session.get(url, timeout=10)
+                        response = self.session.get(url, timeout=10, verify=True)
                         if response.status_code == 200:
                             sqft = self._extract_square_footage_from_text(response.text)
                             if sqft:
@@ -166,7 +187,7 @@ class SquareFootageScraper:
             for url in urls:
                 if any(site in url.lower() for site in ['loopnet.com', 'crexi.com', 'showcase.com']):
                     try:
-                        response = self.session.get(url, timeout=10)
+                        response = self.session.get(url, timeout=10, verify=True)
                         if response.status_code == 200:
                             sqft = self._extract_square_footage_from_text(response.text)
                             if sqft:
@@ -191,6 +212,12 @@ class SquareFootageScraper:
         Returns:
             SquareFootageResult with scraped data
         """
+        # Validate and sanitize inputs
+        input_data = ScrapingInput(restaurant_name=restaurant_name, address=address, county=county)
+        restaurant_name = input_data.restaurant_name
+        address = input_data.address
+        county = input_data.county
+
         logger.info(f"Scraping square footage for {restaurant_name} at {address}")
 
         sources_tried = []
@@ -233,7 +260,7 @@ class SquareFootageScraper:
 
             for url in urls:
                 try:
-                    response = self.session.get(url, timeout=10)
+                    response = self.session.get(url, timeout=10, verify=True)  # Enforce HTTPS verification
                     if response.status_code == 200:
                         sqft = self._extract_square_footage_from_text(response.text)
                         if sqft:

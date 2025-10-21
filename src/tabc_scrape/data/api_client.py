@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Any
 import requests
 import pandas as pd
 from dataclasses import dataclass
+from requests_ratelimiter import Limiter, RequestRate
 
 from ..config import config
 
@@ -55,12 +56,18 @@ class TexasComptrollerAPI:
         self.max_retries = config.api.max_retries
         self.backoff_factor = config.api.backoff_factor
 
+        # Rate limiter: 5 requests per minute for API
+        rate_limiter = Limiter(RequestRate(5, 60))
+        self.session = requests.Session()
+        self.session.mount('https://', rate_limiter)
+        self.session.mount('http://', rate_limiter)
+
     def _make_request(self, url: str) -> Optional[Dict[str, Any]]:
         """Make HTTP request with retry logic"""
         for attempt in range(self.max_retries):
             try:
                 logger.info(f"Making request to {url} (attempt {attempt + 1})")
-                response = requests.get(url, timeout=self.timeout)
+                response = self.session.get(url, timeout=self.timeout, verify=True)
 
                 if response.status_code == 200:
                     return response.json()
@@ -242,7 +249,7 @@ class TexasComptrollerAPI:
     def test_connection(self) -> bool:
         """Test if the API is accessible"""
         try:
-            response = requests.get(f"{self.base_url}/$count", timeout=10)
+            response = self.session.get(f"{self.base_url}/$count", timeout=10, verify=True)
             return response.status_code == 200
         except:
             return False

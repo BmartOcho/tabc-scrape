@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import pandas as pd
 from contextlib import contextmanager
 
-from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, Text, func
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, Text, func, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,14 +27,26 @@ class DatabaseManager:
 
     def __init__(self, database_url: Optional[str] = None):
         self.database_url = database_url or config.database.url
+        # Mask credentials in logs
+        masked_url = self._mask_database_url(self.database_url)
         self.engine = create_engine(self.database_url, echo=config.database.echo)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        logger.info(f"Initialized database with URL: {masked_url}")
 
         # Create tables
         self._create_tables()
 
         # Ensure data directory exists for file exports
         self._ensure_data_directory()
+
+    def _mask_database_url(self, url: str) -> str:
+        """Mask credentials in database URL for logging"""
+        if '://' in url and '@' in url:
+            scheme, rest = url.split('://', 1)
+            if '@' in rest:
+                user_pass, host_db = rest.split('@', 1)
+                return f"{scheme}://***:***@{host_db}"
+        return url
 
     def _ensure_data_directory(self):
         """Ensure data directory exists"""
@@ -476,7 +488,7 @@ class DatabaseManager:
         """Test database connection"""
         try:
             with self.get_session() as session:
-                session.execute("SELECT 1")
+                session.execute(text("SELECT 1"))
                 return True
         except Exception as e:
             logger.error(f"Database connection test failed: {e}")

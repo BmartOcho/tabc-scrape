@@ -1,0 +1,2 @@
+[console_scripts]
+tabc-scrape = tabc_scrape.cli:cli

@@ -13,6 +13,8 @@ from bs4 import BeautifulSoup
 import json
 import os
 from urllib.parse import quote
+from pydantic import BaseModel, Field, validator
+from requests_ratelimiter import Limiter, RequestRate
 
 # AI and NLP imports
 AI_AVAILABLE = False
@@ -31,6 +33,21 @@ except ImportError:
     pass
 
 logger = logging.getLogger(__name__)
+
+class ClassificationInput(BaseModel):
+    """Input validation for classification requests"""
+    restaurant_name: str = Field(..., min_length=1, max_length=200, description="Restaurant name")
+    address: str = Field(..., min_length=1, max_length=500, description="Restaurant address")
+    description: str = Field(default="", max_length=1000, description="Restaurant description")
+
+    @validator('restaurant_name', 'address', 'description')
+    def sanitize_string(cls, v):
+        if not v:
+            return v
+        # Remove potentially harmful characters
+        v = re.sub(r'[<>"/\\|?*]', '', v)
+        # Limit length and strip whitespace
+        return v.strip()[:200] if 'name' in cls.__name__.lower() else v.strip()[:500] if 'address' in cls.__name__.lower() else v.strip()[:1000]
 
 @dataclass
 class ConceptClassification:
@@ -169,8 +186,11 @@ class EnhancedRestaurantConceptClassifier:
         if AI_AVAILABLE:
             self._initialize_ai_components()
 
-        # Session for web scraping
+        # Session for web scraping with rate limiting
+        rate_limiter = Limiter(RequestRate(10, 60))  # 10 requests per 60 seconds
         self.session = requests.Session()
+        self.session.mount('https://', rate_limiter)
+        self.session.mount('http://', rate_limiter)
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         })
@@ -254,7 +274,7 @@ class EnhancedRestaurantConceptClassifier:
         """Search Google and return top result URLs"""
         try:
             search_url = f"https://www.google.com/search?q={quote(query)}&num={num_results}"
-            response = self.session.get(search_url, timeout=10)
+            response = self.session.get(search_url, timeout=10, verify=True)
 
             if response.status_code != 200:
                 logger.warning(f"Google search failed with status {response.status_code}")
@@ -267,7 +287,7 @@ class EnhancedRestaurantConceptClassifier:
                 href = link['href']
                 if href.startswith('/url?q='):
                     url = href.split('/url?q=')[1].split('&')[0]
-                    if url.startswith('http') and 'google.com' not in url:
+                    if url.startswith('https') and 'google.com' not in url:  # Prefer HTTPS
                         urls.append(url)
                         if len(urls) >= num_results:
                             break
@@ -285,7 +305,7 @@ class EnhancedRestaurantConceptClassifier:
             query = f"{restaurant_name} {address}"
             search_url = f"https://www.yelp.com/search?find_desc={quote(query)}&find_loc={quote(address)}"
 
-            response = self.session.get(search_url, timeout=10)
+            response = self.session.get(search_url, timeout=10, verify=True)
             if response.status_code != 200:
                 return WebSourceData("yelp", search_url, [], "", None, None, None, False, f"HTTP {response.status_code}")
 
@@ -299,7 +319,7 @@ class EnhancedRestaurantConceptClassifier:
             business_url = f"https://www.yelp.com{business_link['href']}"
 
             # Get business details
-            detail_response = self.session.get(business_url, timeout=10)
+            detail_response = self.session.get(business_url, timeout=10, verify=True)
             if detail_response.status_code != 200:
                 return WebSourceData("yelp", business_url, [], "", None, None, None, False, f"HTTP {detail_response.status_code}")
 
@@ -353,7 +373,7 @@ class EnhancedRestaurantConceptClassifier:
             query = f"{restaurant_name} {address}"
             search_url = f"https://www.google.com/search?q={quote(query)}"
 
-            response = self.session.get(search_url, timeout=10)
+            response = self.session.get(search_url, timeout=10, verify=True)
             if response.status_code != 200:
                 return WebSourceData("google", search_url, [], "", None, None, None, False, f"HTTP {response.status_code}")
 
@@ -539,6 +559,12 @@ class EnhancedRestaurantConceptClassifier:
 
     def classify_restaurant(self, restaurant_name: str, address: str, description: str = "") -> ConceptClassification:
         """Main method to classify a restaurant's concept"""
+        # Validate and sanitize inputs
+        input_data = ClassificationInput(restaurant_name=restaurant_name, address=address, description=description)
+        restaurant_name = input_data.restaurant_name
+        address = input_data.address
+        description = input_data.description
+
         # Try web scraping first for better accuracy
         web_result = self.scrape_concept_from_web(restaurant_name, address)
 
