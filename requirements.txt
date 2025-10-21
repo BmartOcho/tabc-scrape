@@ -1,0 +1,56 @@
+# Core data processing
+pandas>=1.5.0
+numpy>=1.21.0
+requests>=2.28.0
+
+# Web scraping
+beautifulsoup4>=4.11.0
+selenium>=4.5.0
+fake-useragent>=1.1.0
+
+# Geospatial analysis for population data
+geopy>=2.3.0
+folium>=0.13.0
+
+# Census data API
+censusdata>=1.15
+
+# Data storage and caching
+sqlalchemy>=1.4.0
+alembic>=1.8.0
+
+# Database enhancements
+psycopg2-binary>=2.9.0
+alembic-utils>=0.8.0
+
+# HTTP requests with rate limiting
+requests-ratelimiter>=0.3.0
+
+# Data validation
+pydantic>=1.10.0
+great-expectations>=0.15.0
+
+# Logging and monitoring
+structlog>=22.0.0
+
+# Web scraping and APIs
+selenium>=4.5.0
+fake-useragent>=1.1.0
+requests-html>=0.10.0
+
+# AI and NLP
+transformers>=4.21.0
+torch>=1.12.0
+scikit-learn>=1.1.0
+nltk>=3.7
+spacy>=3.4.0
+
+# Data processing enhancements
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Development and testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=22.0.0
+flake8>=5.0.0
