@@ -58,7 +58,7 @@ class DataEnrichmentPipeline:
         self.enable_concept_classification = True
         self.enable_population_analysis = True
 
-    def enrich_single_restaurant(self, restaurant_id: str) -> EnrichmentResult:
+    async def enrich_single_restaurant(self, restaurant_id: str) -> EnrichmentResult:
         """
         Enrich a single restaurant with all available data
 
@@ -93,7 +93,7 @@ class DataEnrichmentPipeline:
             if self.enable_concept_classification:
                 try:
                     logger.info(f"Classifying concept for {restaurant.location_name}")
-                    classification = self.concept_classifier.classify_restaurant(
+                    classification = await self.concept_classifier.classify_restaurant(
                         restaurant.location_name,
                         restaurant.full_address
                     )
@@ -113,7 +113,7 @@ class DataEnrichmentPipeline:
             if self.enable_population_analysis:
                 try:
                     logger.info(f"Analyzing population data for {restaurant.location_name}")
-                    population_result = self.population_analyzer.analyze_location(
+                    population_result = await self.population_analyzer.analyze_location(
                         restaurant.location_name,
                         restaurant.full_address
                     )
@@ -133,7 +133,7 @@ class DataEnrichmentPipeline:
             if self.enable_square_footage_scraping:
                 try:
                     logger.info(f"Scraping square footage for {restaurant.location_name}")
-                    sqft_result = self.square_footage_scraper.scrape_square_footage(
+                    sqft_result = await self.square_footage_scraper.scrape_square_footage(
                         restaurant.location_name,
                         restaurant.full_address,
                         restaurant.location_county
@@ -176,7 +176,7 @@ class DataEnrichmentPipeline:
                 data_collected={}
             )
 
-    def enrich_restaurants_batch(self, restaurant_ids: List[str]) -> List[EnrichmentResult]:
+    async def enrich_restaurants_batch(self, restaurant_ids: List[str]) -> List[EnrichmentResult]:
         """
         Enrich a batch of restaurants
 
@@ -188,20 +188,29 @@ class DataEnrichmentPipeline:
         """
         logger.info(f"Starting batch enrichment for {len(restaurant_ids)} restaurants")
 
-        results = []
-        for i, restaurant_id in enumerate(restaurant_ids):
-            logger.info(f"Processing restaurant {i+1}/{len(restaurant_ids)}: {restaurant_id}")
+        # Use asyncio.gather for concurrent processing
+        tasks = [self.enrich_single_restaurant(rid) for rid in restaurant_ids]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-            result = self.enrich_single_restaurant(restaurant_id)
-            results.append(result)
+        # Handle exceptions
+        final_results = []
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"Error enriching restaurant {restaurant_ids[i]}: {result}")
+                final_results.append(EnrichmentResult(
+                    restaurant_id=restaurant_ids[i],
+                    success=False,
+                    errors=[f"Exception: {result}"],
+                    warnings=[],
+                    processing_time=0.0,
+                    data_collected={}
+                ))
+            else:
+                final_results.append(result)
 
-            # Small delay between restaurants to be respectful to external APIs
-            if i < len(restaurant_ids) - 1:
-                time.sleep(0.5)
+        return final_results
 
-        return results
-
-    def run_full_enrichment_pipeline(self, limit: Optional[int] = None) -> PipelineStats:
+    async def run_full_enrichment_pipeline(self, limit: Optional[int] = None) -> PipelineStats:
         """
         Run the complete enrichment pipeline on all restaurants
 
@@ -230,7 +239,7 @@ class DataEnrichmentPipeline:
             batch_ids = restaurant_ids[i:i + self.batch_size]
             logger.info(f"Processing batch {i//self.batch_size + 1}: restaurants {i+1}-{min(i+self.batch_size, len(restaurant_ids))}")
 
-            batch_results = self.enrich_restaurants_batch(batch_ids)
+            batch_results = await self.enrich_restaurants_batch(batch_ids)
             all_results.extend(batch_results)
 
             # Progress update
@@ -434,7 +443,7 @@ class DataEnrichmentPipeline:
 
         return self.db.create_enrichment_job(restaurant_id, job_type, job_config)
 
-    def process_enrichment_job(self, job_id: int) -> bool:
+    async def process_enrichment_job(self, job_id: int) -> bool:
         """
         Process a specific enrichment job
 
@@ -462,7 +471,7 @@ class DataEnrichmentPipeline:
 
                 # Process based on job type
                 if job.job_type == 'full_enrichment':
-                    result = self.enrich_single_restaurant(job.restaurant_id)
+                    result = await self.enrich_single_restaurant(job.restaurant_id)
                 else:
                     # Handle other job types
                     result = EnrichmentResult(

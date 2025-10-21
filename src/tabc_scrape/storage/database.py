@@ -36,6 +36,9 @@ class DatabaseManager:
         # Create tables
         self._create_tables()
 
+        # Create indexes
+        self._create_indexes()
+
         # Ensure data directory exists for file exports
         self._ensure_data_directory()
 
@@ -60,6 +63,35 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Error creating database tables: {e}")
             raise
+
+    def _create_indexes(self):
+        """Create database indexes for performance"""
+        indexes = [
+            "CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)",
+            "CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)",
+            "CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)",
+            "CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)",
+            "CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)",
+            "CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)",
+            "CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)",
+            "CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)",
+            "CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)",
+            "CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)",
+            "CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)",
+            "CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)",
+            "CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)",
+            "CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)",
+            "CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)",
+            "CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)",
+            "CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)"
+        ]
+
+        for sql in indexes:
+            try:
+                self.engine.execute(text(sql))
+                logger.info(f"Created index: {sql}")
+            except Exception as e:
+                logger.error(f"Error creating index {sql}: {e}")
 
     @contextmanager
     def get_session(self):

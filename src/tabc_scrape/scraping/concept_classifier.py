@@ -8,13 +8,12 @@ import time
 import asyncio
 from typing import Optional, Dict, List, Tuple, Any
 from dataclasses import dataclass, field
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 import json
 import os
 from urllib.parse import quote
 from pydantic import BaseModel, Field, validator
-from requests_ratelimiter import Limiter, RequestRate
 
 # AI and NLP imports
 AI_AVAILABLE = False
@@ -186,14 +185,7 @@ class EnhancedRestaurantConceptClassifier:
         if AI_AVAILABLE:
             self._initialize_ai_components()
 
-        # Session for web scraping with rate limiting
-        rate_limiter = Limiter(RequestRate(10, 60))  # 10 requests per 60 seconds
-        self.session = requests.Session()
-        self.session.mount('https://', rate_limiter)
-        self.session.mount('http://', rate_limiter)
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        })
+        # aiohttp will be used per request
 
     def _initialize_ai_components(self):
         """Initialize AI/NLP components for enhanced classification"""
@@ -270,151 +262,153 @@ class EnhancedRestaurantConceptClassifier:
                     return max(numbers)
         return None
 
-    def _search_google(self, query: str, num_results: int = 5) -> List[str]:
+    async def _search_google(self, query: str, num_results: int = 5) -> List[str]:
         """Search Google and return top result URLs"""
         try:
             search_url = f"https://www.google.com/search?q={quote(query)}&num={num_results}"
-            response = self.session.get(search_url, timeout=10, verify=True)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status != 200:
+                        logger.warning(f"Google search failed with status {response.status}")
+                        return []
 
-            if response.status_code != 200:
-                logger.warning(f"Google search failed with status {response.status_code}")
-                return []
+                    soup = BeautifulSoup(await response.text(), 'html.parser')
 
-            soup = BeautifulSoup(response.text, 'html.parser')
+                    urls = []
+                    for link in soup.find_all('a', href=True):
+                        href = link['href']
+                        if href.startswith('/url?q='):
+                            url = href.split('/url?q=')[1].split('&')[0]
+                            if url.startswith('https') and 'google.com' not in url:  # Prefer HTTPS
+                                urls.append(url)
+                                if len(urls) >= num_results:
+                                    break
 
-            urls = []
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                if href.startswith('/url?q='):
-                    url = href.split('/url?q=')[1].split('&')[0]
-                    if url.startswith('https') and 'google.com' not in url:  # Prefer HTTPS
-                        urls.append(url)
-                        if len(urls) >= num_results:
-                            break
-
-            return urls
+                    return urls
 
         except Exception as e:
             logger.error(f"Error searching Google: {e}")
             return []
 
-    def _scrape_yelp_business(self, restaurant_name: str, address: str) -> Optional[WebSourceData]:
+    async def _scrape_yelp_business(self, restaurant_name: str, address: str) -> Optional[WebSourceData]:
         """Scrape Yelp business information"""
         try:
             # Search for business on Yelp
             query = f"{restaurant_name} {address}"
             search_url = f"https://www.yelp.com/search?find_desc={quote(query)}&find_loc={quote(address)}"
 
-            response = self.session.get(search_url, timeout=10, verify=True)
-            if response.status_code != 200:
-                return WebSourceData("yelp", search_url, [], "", None, None, None, False, f"HTTP {response.status_code}")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status != 200:
+                        return WebSourceData("yelp", search_url, [], "", None, None, None, False, f"HTTP {response.status}")
 
-            soup = BeautifulSoup(response.text, 'html.parser')
+                    soup = BeautifulSoup(await response.text(), 'html.parser')
 
-            # Look for the first business listing
-            business_link = soup.find('a', {'data-testid': 'biz-name'})
-            if not business_link:
-                return WebSourceData("yelp", search_url, [], "", None, None, None, False, "No business found")
+                    # Look for the first business listing
+                    business_link = soup.find('a', {'data-testid': 'biz-name'})
+                    if not business_link:
+                        return WebSourceData("yelp", search_url, [], "", None, None, None, False, "No business found")
 
-            business_url = f"https://www.yelp.com{business_link['href']}"
+                    business_url = f"https://www.yelp.com{business_link['href']}"
 
-            # Get business details
-            detail_response = self.session.get(business_url, timeout=10, verify=True)
-            if detail_response.status_code != 200:
-                return WebSourceData("yelp", business_url, [], "", None, None, None, False, f"HTTP {detail_response.status_code}")
+                    # Get business details
+                    async with session.get(business_url, timeout=aiohttp.ClientTimeout(total=10)) as detail_response:
+                        if detail_response.status != 200:
+                            return WebSourceData("yelp", business_url, [], "", None, None, None, False, f"HTTP {detail_response.status}")
 
-            detail_soup = BeautifulSoup(detail_response.text, 'html.parser')
+                        detail_soup = BeautifulSoup(await detail_response.text(), 'html.parser')
 
-            # Extract categories
-            categories = []
-            category_elements = detail_soup.find_all('a', {'href': lambda x: x and '/category/' in x})
-            for cat in category_elements[:3]:  # Limit to 3 categories
-                categories.append(cat.text.strip())
+                        # Extract categories
+                        categories = []
+                        category_elements = detail_soup.find_all('a', {'href': lambda x: x and '/category/' in x})
+                        for cat in category_elements[:3]:  # Limit to 3 categories
+                            categories.append(cat.text.strip())
 
-            # Extract description
-            description = ""
-            desc_element = detail_soup.find('meta', {'property': 'description'})
-            if desc_element:
-                description = desc_element.get('content', '')
+                        # Extract description
+                        description = ""
+                        desc_element = detail_soup.find('meta', {'property': 'description'})
+                        if desc_element:
+                            description = desc_element.get('content', '')
 
-            # Extract price range
-            price_range = None
-            price_element = detail_soup.find('span', {'class': lambda x: x and 'priceRange' in x})
-            if price_element:
-                price_range = price_element.text.strip()
+                        # Extract price range
+                        price_range = None
+                        price_element = detail_soup.find('span', {'class': lambda x: x and 'priceRange' in x})
+                        if price_element:
+                            price_range = price_element.text.strip()
 
-            # Extract rating
-            rating = None
-            rating_element = detail_soup.find('span', {'class': lambda x: x and 'rating' in x})
-            if rating_element:
-                try:
-                    rating = float(rating_element.text.strip())
-                except ValueError:
-                    pass
+                        # Extract rating
+                        rating = None
+                        rating_element = detail_soup.find('span', {'class': lambda x: x and 'rating' in x})
+                        if rating_element:
+                            try:
+                                rating = float(rating_element.text.strip())
+                            except ValueError:
+                                pass
 
-            return WebSourceData(
-                source_name="yelp",
-                url=business_url,
-                categories=categories,
-                description=description,
-                price_range=price_range,
-                rating=rating,
-                review_count=None,  # Would need additional parsing
-                success=True
-            )
+                        return WebSourceData(
+                            source_name="yelp",
+                            url=business_url,
+                            categories=categories,
+                            description=description,
+                            price_range=price_range,
+                            rating=rating,
+                            review_count=None,  # Would need additional parsing
+                            success=True
+                        )
 
         except Exception as e:
             logger.error(f"Error scraping Yelp: {e}")
             return WebSourceData("yelp", "", [], "", None, None, None, False, str(e))
 
-    def _scrape_google_business(self, restaurant_name: str, address: str) -> Optional[WebSourceData]:
+    async def _scrape_google_business(self, restaurant_name: str, address: str) -> Optional[WebSourceData]:
         """Scrape Google Business information"""
         try:
             query = f"{restaurant_name} {address}"
             search_url = f"https://www.google.com/search?q={quote(query)}"
 
-            response = self.session.get(search_url, timeout=10, verify=True)
-            if response.status_code != 200:
-                return WebSourceData("google", search_url, [], "", None, None, None, False, f"HTTP {response.status_code}")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status != 200:
+                        return WebSourceData("google", search_url, [], "", None, None, None, False, f"HTTP {response.status}")
 
-            soup = BeautifulSoup(response.text, 'html.parser')
+                    soup = BeautifulSoup(await response.text(), 'html.parser')
 
-            # Look for business listing in search results
-            business_card = soup.find('div', {'class': lambda x: x and 'VkpGBb' in x})
-            if not business_card:
-                return WebSourceData("google", search_url, [], "", None, None, None, False, "No business found")
+                    # Look for business listing in search results
+                    business_card = soup.find('div', {'class': lambda x: x and 'VkpGBb' in x})
+                    if not business_card:
+                        return WebSourceData("google", search_url, [], "", None, None, None, False, "No business found")
 
-            # Extract categories
-            categories = []
-            category_spans = business_card.find_all('span', {'class': lambda x: x and 'YhemCb' in x})
-            for span in category_spans[:3]:
-                categories.append(span.text.strip())
+                    # Extract categories
+                    categories = []
+                    category_spans = business_card.find_all('span', {'class': lambda x: x and 'YhemCb' in x})
+                    for span in category_spans[:3]:
+                        categories.append(span.text.strip())
 
-            # Extract description
-            description = ""
-            desc_div = business_card.find('div', {'class': lambda x: x and 'Chtupc' in x})
-            if desc_div:
-                description = desc_div.text.strip()
+                    # Extract description
+                    description = ""
+                    desc_div = business_card.find('div', {'class': lambda x: x and 'Chtupc' in x})
+                    if desc_div:
+                        description = desc_div.text.strip()
 
-            # Extract price range (Google uses · separator)
-            price_range = None
-            if '·' in business_card.text:
-                parts = business_card.text.split('·')
-                for part in parts:
-                    if any(char in part for char in ['$', '£', '€']):
-                        price_range = part.strip()
-                        break
+                    # Extract price range (Google uses · separator)
+                    price_range = None
+                    if '·' in business_card.text:
+                        parts = business_card.text.split('·')
+                        for part in parts:
+                            if any(char in part for char in ['$', '£', '€']):
+                                price_range = part.strip()
+                                break
 
-            return WebSourceData(
-                source_name="google",
-                url=search_url,
-                categories=categories,
-                description=description,
-                price_range=price_range,
-                rating=None,
-                review_count=None,
-                success=True
-            )
+                    return WebSourceData(
+                        source_name="google",
+                        url=search_url,
+                        categories=categories,
+                        description=description,
+                        price_range=price_range,
+                        rating=None,
+                        review_count=None,
+                        success=True
+                    )
 
         except Exception as e:
             logger.error(f"Error scraping Google Business: {e}")
@@ -508,7 +502,7 @@ class EnhancedRestaurantConceptClassifier:
             ai_confidence=ai_confidence
         )
 
-    def scrape_concept_from_web(self, restaurant_name: str, address: str) -> ConceptClassification:
+    async def scrape_concept_from_web(self, restaurant_name: str, address: str) -> ConceptClassification:
         """Enhanced web scraping for restaurant concept classification"""
         logger.info(f"Scraping concept for {restaurant_name} at {address}")
 
@@ -522,7 +516,7 @@ class EnhancedRestaurantConceptClassifier:
 
         for source_name, scrape_func in sources_to_try:
             try:
-                source_data = scrape_func()
+                source_data = await scrape_func()
                 if source_data and source_data.success:
                     web_data_sources.append(source_data.source_name)
 
@@ -557,7 +551,7 @@ class EnhancedRestaurantConceptClassifier:
 
         return fallback_classification
 
-    def classify_restaurant(self, restaurant_name: str, address: str, description: str = "") -> ConceptClassification:
+    async def classify_restaurant(self, restaurant_name: str, address: str, description: str = "") -> ConceptClassification:
         """Main method to classify a restaurant's concept"""
         # Validate and sanitize inputs
         input_data = ClassificationInput(restaurant_name=restaurant_name, address=address, description=description)
@@ -566,7 +560,7 @@ class EnhancedRestaurantConceptClassifier:
         description = input_data.description
 
         # Try web scraping first for better accuracy
-        web_result = self.scrape_concept_from_web(restaurant_name, address)
+        web_result = await self.scrape_concept_from_web(restaurant_name, address)
 
         # If web scraping gives poor results, enhance with provided description
         if web_result.confidence < 0.4 and description:

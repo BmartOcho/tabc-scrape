@@ -6,10 +6,13 @@ import logging
 import re
 import time
 import os
+import asyncio
 from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass
-import requests
+import aiohttp
 import json
+
+from ..storage.cache import get_geocode_cache, set_geocode_cache
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +49,7 @@ class PopulationAnalyzer:
     """Analyzer for population demographics around restaurant locations"""
 
     def __init__(self):
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        })
+        # aiohttp session will be created per request
 
         # Census API configuration (would need actual API key for production)
         self.census_api_key = os.getenv('CENSUS_API_KEY', 'demo_key')
@@ -73,9 +73,9 @@ class PopulationAnalyzer:
         # Drinking age percentage (21+ years old)
         self.drinking_age_ratio = 0.75  # More accurate for adult population
 
-    def geocode_address(self, address: str) -> Tuple[Optional[float], Optional[float]]:
+    async def geocode_address(self, address: str) -> Tuple[Optional[float], Optional[float]]:
         """
-        Geocode an address using OpenStreetMap Nominatim API (free)
+        Geocode an address using OpenStreetMap Nominatim API (free) with caching
 
         Args:
             address: Full address string
@@ -84,6 +84,12 @@ class PopulationAnalyzer:
             Tuple of (latitude, longitude) or (None, None) if geocoding fails
         """
         try:
+            # Check cache first
+            cached_result = await get_geocode_cache(address)
+            if cached_result is not None:
+                logger.info(f"Returning cached geocoding result for: {address}")
+                return cached_result['lat'], cached_result['lon']
+
             logger.info(f"Geocoding address: {address}")
 
             # Use OpenStreetMap Nominatim (free, no API key required)
@@ -95,15 +101,20 @@ class PopulationAnalyzer:
                 'countrycodes': 'us'
             }
 
-            response = self.session.get(url, params=params, timeout=10)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        if data:
+                            lat = float(data[0]['lat'])
+                            lon = float(data[0]['lon'])
+                            logger.info(f"Geocoded to: {lat}, {lon}")
 
-            if response.status_code == 200:
-                data = response.json()
-                if data:
-                    lat = float(data[0]['lat'])
-                    lon = float(data[0]['lon'])
-                    logger.info(f"Geocoded to: {lat}, {lon}")
-                    return lat, lon
+                            # Cache successful geocoding result
+                            if await set_geocode_cache(address, lat, lon):
+                                logger.info(f"Cached geocoding result for: {address}")
+
+                            return lat, lon
 
             logger.warning(f"Geocoding failed for: {address}")
             return None, None
@@ -227,7 +238,7 @@ class PopulationAnalyzer:
             logger.error(f"Error calculating population in radius: {e}")
             return int(5000 * radius_miles)  # Fallback
 
-    def analyze_location(self, restaurant_name: str, address: str) -> PopulationResult:
+    async def analyze_location(self, restaurant_name: str, address: str) -> PopulationResult:
         """
         Analyze population demographics around a restaurant location
 
@@ -241,7 +252,7 @@ class PopulationAnalyzer:
         logger.info(f"Analyzing population for {restaurant_name} at {address}")
 
         # Geocode the address
-        lat, lon = self.geocode_address(address)
+        lat, lon = await self.geocode_address(address)
 
         if lat is None or lon is None:
             logger.warning(f"Could not geocode address: {address}")

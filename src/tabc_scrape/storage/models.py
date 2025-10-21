@@ -2,7 +2,7 @@
 SQLAlchemy models for restaurant data storage and enrichment pipeline
 """
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -102,6 +102,14 @@ class Restaurant(Base):
             'full_address': self.full_address
         }
 
+# Indexes for Restaurant
+Index('ix_restaurant_location_city', Restaurant.location_city)
+Index('ix_restaurant_location_state', Restaurant.location_state)
+Index('ix_restaurant_total_receipts', Restaurant.total_receipts)
+Index('ix_restaurant_latitude', Restaurant.latitude)
+Index('ix_restaurant_longitude', Restaurant.longitude)
+Index('ix_restaurant_location', Restaurant.location_city, Restaurant.location_state)
+
 class ConceptClassification(Base):
     """Restaurant concept classification results"""
     __tablename__ = "concept_classifications"
@@ -145,6 +153,10 @@ class ConceptClassification(Base):
             'classified_at': self.classified_at.isoformat() if self.classified_at else None,
             'last_updated': self.last_updated.isoformat() if self.last_updated else None
         }
+
+# Indexes for ConceptClassification
+Index('ix_concept_confidence', ConceptClassification.confidence)
+Index('ix_concept_source', ConceptClassification.source)
 
 class PopulationData(Base):
     """Population and demographic data for restaurant locations"""
@@ -205,6 +217,12 @@ class PopulationData(Base):
             'last_updated': self.last_updated.isoformat() if self.last_updated else None
         }
 
+# Indexes for PopulationData
+Index('ix_population_1_mile', PopulationData.population_1_mile)
+Index('ix_population_3_mile', PopulationData.population_3_mile)
+Index('ix_population_5_mile', PopulationData.population_5_mile)
+Index('ix_population_10_mile', PopulationData.population_10_mile)
+
 class SquareFootageData(Base):
     """Square footage data for restaurants"""
     __tablename__ = "square_footage_data"
@@ -240,6 +258,10 @@ class SquareFootageData(Base):
             'scraped_at': self.scraped_at.isoformat() if self.scraped_at else None,
             'last_updated': self.last_updated.isoformat() if self.last_updated else None
         }
+
+# Indexes for SquareFootageData
+Index('ix_sqft_square_footage', SquareFootageData.square_footage)
+Index('ix_sqft_confidence', SquareFootageData.confidence)
 
 class EnrichmentJob(Base):
     """Tracks data enrichment jobs and their status"""
@@ -281,6 +303,10 @@ class EnrichmentJob(Base):
             'job_config': self.job_config,
             'results_summary': self.results_summary
         }
+
+# Indexes for EnrichmentJob
+Index('ix_job_status', EnrichmentJob.status)
+Index('ix_job_type', EnrichmentJob.job_type)
 
 class DataQualityMetrics(Base):
     """Data quality metrics and validation results"""
@@ -325,3 +351,6 @@ class DataQualityMetrics(Base):
             'assessed_at': self.assessed_at.isoformat() if self.assessed_at else None,
             'last_updated': self.last_updated.isoformat() if self.last_updated else None
         }
+
+# Indexes for DataQualityMetrics
+Index('ix_quality_overall_score', DataQualityMetrics.overall_quality_score)

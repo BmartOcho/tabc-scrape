@@ -4,13 +4,14 @@ Texas Comptroller API client for restaurant data collection
 
 import time
 import logging
+import asyncio
 from typing import Dict, List, Optional, Any
-import requests
+import aiohttp
 import pandas as pd
 from dataclasses import dataclass
-from requests_ratelimiter import Limiter, RequestRate
 
 from ..config import config
+from ..storage.cache import get_api_cache, set_api_cache
 
 logger = logging.getLogger(__name__)
 
@@ -56,43 +57,49 @@ class TexasComptrollerAPI:
         self.max_retries = config.api.max_retries
         self.backoff_factor = config.api.backoff_factor
 
-        # Rate limiter: 5 requests per minute for API
-        rate_limiter = Limiter(RequestRate(5, 60))
-        self.session = requests.Session()
-        self.session.mount('https://', rate_limiter)
-        self.session.mount('http://', rate_limiter)
+        # aiohttp session will be created per request for simplicity
 
-    def _make_request(self, url: str) -> Optional[Dict[str, Any]]:
-        """Make HTTP request with retry logic"""
+    async def _make_request(self, url: str) -> Optional[Dict[str, Any]]:
+        """Make HTTP request with retry logic and caching"""
+        # Check cache first
+        cached_response = await get_api_cache(url)
+        if cached_response is not None:
+            logger.info(f"Returning cached response for {url}")
+            return cached_response
+
         for attempt in range(self.max_retries):
             try:
                 logger.info(f"Making request to {url} (attempt {attempt + 1})")
-                response = self.session.get(url, timeout=self.timeout, verify=True)
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=self.timeout)) as response:
+                        if response.status == 200:
+                            response_data = await response.json()
+                            # Cache successful response
+                            if await set_api_cache(url, response_data):
+                                logger.info(f"Cached response for {url}")
+                            return response_data
+                        elif response.status == 429:
+                            # Rate limited, wait and retry
+                            wait_time = self.backoff_factor * (2 ** attempt)
+                            logger.warning(f"Rate limited, waiting {wait_time}s before retry")
+                            await asyncio.sleep(wait_time)
+                            continue
+                        else:
+                            logger.error(f"API request failed with status {response.status}")
+                            return None
 
-                if response.status_code == 200:
-                    return response.json()
-                elif response.status_code == 429:
-                    # Rate limited, wait and retry
-                    wait_time = self.backoff_factor * (2 ** attempt)
-                    logger.warning(f"Rate limited, waiting {wait_time}s before retry")
-                    time.sleep(wait_time)
-                    continue
-                else:
-                    logger.error(f"API request failed with status {response.status_code}")
-                    return None
-
-            except requests.exceptions.RequestException as e:
+            except aiohttp.ClientError as e:
                 logger.error(f"Request error: {e}")
                 if attempt < self.max_retries - 1:
                     wait_time = self.backoff_factor * (2 ** attempt)
                     logger.info(f"Retrying in {wait_time}s...")
-                    time.sleep(wait_time)
+                    await asyncio.sleep(wait_time)
                 else:
                     return None
 
         return None
 
-    def get_all_restaurants(self, batch_size: int = 1000) -> List[RestaurantRecord]:
+    async def get_all_restaurants(self, batch_size: int = 1000) -> List[RestaurantRecord]:
         """
         Fetch all restaurant records from the API
 
@@ -106,7 +113,7 @@ class TexasComptrollerAPI:
 
         # First, get total count
         count_url = f"{self.base_url}/$count"
-        count_response = self._make_request(count_url)
+        count_response = await self._make_request(count_url)
 
         if not count_response:
             logger.error("Failed to get total count")
@@ -139,7 +146,7 @@ class TexasComptrollerAPI:
                 "cover_charge_receipts,total_receipts"
             )
 
-            data = self._make_request(query_url)
+            data = await self._make_request(query_url)
             if not data or 'value' not in data:
                 logger.error(f"Failed to fetch batch starting at {skip}")
                 break
@@ -184,12 +191,12 @@ class TexasComptrollerAPI:
             skip += batch_size
 
             # Add delay to be respectful to the API
-            time.sleep(0.5)
+            await asyncio.sleep(0.5)
 
         logger.info(f"Successfully fetched {len(restaurants)} restaurant records")
         return restaurants
 
-    def get_restaurants_dataframe(self, limit: Optional[int] = None) -> pd.DataFrame:
+    async def get_restaurants_dataframe(self, limit: Optional[int] = None) -> pd.DataFrame:
         """
         Get restaurant data as a pandas DataFrame
 
@@ -199,7 +206,7 @@ class TexasComptrollerAPI:
         Returns:
             DataFrame with restaurant data
         """
-        restaurants = self.get_all_restaurants()
+        restaurants = await self.get_all_restaurants()
 
         if not restaurants:
             logger.warning("No restaurant data retrieved")
@@ -240,16 +247,17 @@ class TexasComptrollerAPI:
 
         # Set proper data types
         numeric_columns = ['liquor_receipts', 'wine_receipts', 'beer_receipts',
-                          'cover_charge_receipts', 'total_receipts']
+                           'cover_charge_receipts', 'total_receipts']
         df[numeric_columns] = df[numeric_columns].astype(float)
 
         logger.info(f"Created DataFrame with shape {df.shape}")
         return df
 
-    def test_connection(self) -> bool:
+    async def test_connection(self) -> bool:
         """Test if the API is accessible"""
         try:
-            response = self.session.get(f"{self.base_url}/$count", timeout=10, verify=True)
-            return response.status_code == 200
+            async with aiohttp.ClientSession() as session:
+                async with session.get(f"{self.base_url}/$count", timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    return response.status == 200
         except:
             return False

@@ -59,12 +59,30 @@ class EnrichmentConfig(BaseModel):
                 raise ValueError('Each radius must be between 1 and 100 miles')
         return v
 
+class CacheConfig(BaseModel):
+    """Configuration for Redis caching"""
+    host: str = Field(default="localhost", description="Redis server host")
+    port: int = Field(default=6379, ge=1, le=65535, description="Redis server port")
+    db: int = Field(default=0, ge=0, le=15, description="Redis database number")
+    password: Optional[str] = Field(default=None, description="Redis password")
+    enabled: bool = Field(default=True, description="Enable Redis caching")
+    default_ttl: int = Field(default=3600, ge=60, le=86400, description="Default cache TTL in seconds")
+    api_cache_ttl: int = Field(default=1800, ge=60, le=86400, description="API response cache TTL in seconds")
+    geocode_cache_ttl: int = Field(default=7200, ge=60, le=86400, description="Geocoding cache TTL in seconds")
+
+    @validator('port')
+    def validate_redis_port(cls, v):
+        if not (1 <= v <= 65535):
+            raise ValueError('Redis port must be between 1 and 65535')
+        return v
+
 class Config(BaseModel):
     """Main configuration class"""
     api: APIConfig = Field(default_factory=APIConfig)
     scraping: ScrapingConfig = Field(default_factory=ScrapingConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
     enrichment: EnrichmentConfig = Field(default_factory=EnrichmentConfig)
+    cache: CacheConfig = Field(default_factory=CacheConfig)
 
     @classmethod
     def from_env(cls) -> 'Config':
@@ -89,6 +107,16 @@ class Config(BaseModel):
             },
             'enrichment': {
                 'population_radii': [int(r) for r in os.getenv('TABC_ENRICHMENT_RADII', '1,3,5,10').split(',')]
+            },
+            'cache': {
+                'host': os.getenv('TABC_CACHE_HOST', 'localhost'),
+                'port': int(os.getenv('TABC_CACHE_PORT', '6379')),
+                'db': int(os.getenv('TABC_CACHE_DB', '0')),
+                'password': os.getenv('TABC_CACHE_PASSWORD', None),
+                'enabled': os.getenv('TABC_CACHE_ENABLED', 'true').lower() == 'true',
+                'default_ttl': int(os.getenv('TABC_CACHE_DEFAULT_TTL', '3600')),
+                'api_cache_ttl': int(os.getenv('TABC_CACHE_API_TTL', '1800')),
+                'geocode_cache_ttl': int(os.getenv('TABC_CACHE_GEOCODE_TTL', '7200'))
             }
         }
         return cls(**env_vars)
@@ -115,6 +143,15 @@ class Config(BaseModel):
             },
             'enrichment': {
                 'population_radii': self.enrichment.population_radii
+            },
+            'cache': {
+                'host': self.cache.host,
+                'port': self.cache.port,
+                'db': self.cache.db,
+                'enabled': self.cache.enabled,
+                'default_ttl': self.cache.default_ttl,
+                'api_cache_ttl': self.cache.api_cache_ttl,
+                'geocode_cache_ttl': self.cache.geocode_cache_ttl
             }
         }
 

@@ -5,14 +5,14 @@ Web scraper for restaurant square footage data
 import logging
 import re
 import time
+import asyncio
 from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 from urllib.parse import quote, urlencode
 import json
 from pydantic import BaseModel, Field, validator
-from requests_ratelimiter import Limiter, RequestRate
 
 logger = logging.getLogger(__name__)
 
@@ -46,14 +46,7 @@ class SquareFootageScraper:
     """Scraper for restaurant square footage information"""
 
     def __init__(self):
-        # Rate limiter: 10 requests per minute
-        rate_limiter = Limiter(RequestRate(10, 60))  # 10 requests per 60 seconds
-        self.session = requests.Session()
-        self.session.mount('https://', rate_limiter)
-        self.session.mount('http://', rate_limiter)
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
+        # aiohttp will be used per request
 
         # Common square footage patterns in text
         self.sqft_patterns = [
@@ -92,31 +85,31 @@ class SquareFootageScraper:
 
         return None
 
-    def _search_google(self, query: str, num_results: int = 5) -> List[str]:
+    async def _search_google(self, query: str, num_results: int = 5) -> List[str]:
         """Search Google and return top result URLs"""
         try:
             search_url = f"https://www.google.com/search?q={quote(query)}&num={num_results}"
-            response = self.session.get(search_url, timeout=10, verify=True)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status != 200:
+                        logger.warning(f"Google search failed with status {response.status}")
+                        return []
 
-            if response.status_code != 200:
-                logger.warning(f"Google search failed with status {response.status_code}")
-                return []
+                    soup = BeautifulSoup(await response.text(), 'html.parser')
 
-            soup = BeautifulSoup(response.text, 'html.parser')
+                    # Extract URLs from search results
+                    urls = []
+                    for link in soup.find_all('a', href=True):
+                        href = link['href']
+                        if href.startswith('/url?q='):
+                            # Extract the actual URL from Google's redirect
+                            url = href.split('/url?q=')[1].split('&')[0]
+                            if url.startswith('https') and 'google.com' not in url:  # Prefer HTTPS
+                                urls.append(url)
+                                if len(urls) >= num_results:
+                                    break
 
-            # Extract URLs from search results
-            urls = []
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                if href.startswith('/url?q='):
-                    # Extract the actual URL from Google's redirect
-                    url = href.split('/url?q=')[1].split('&')[0]
-                    if url.startswith('https') and 'google.com' not in url:  # Prefer HTTPS
-                        urls.append(url)
-                        if len(urls) >= num_results:
-                            break
-
-            return urls
+                    return urls
 
         except Exception as e:
             logger.error(f"Error searching Google: {e}")
@@ -200,7 +193,7 @@ class SquareFootageScraper:
 
         return None
 
-    def scrape_square_footage(self, restaurant_name: str, address: str, county: str = "") -> SquareFootageResult:
+    async def scrape_square_footage(self, restaurant_name: str, address: str, county: str = "") -> SquareFootageResult:
         """
         Scrape square footage for a restaurant using multiple sources
 
