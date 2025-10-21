@@ -238,7 +238,7 @@ class ValidationEngine:
 
         return results
 
-    def _apply_rule(self, rule: ValidationRule, record: Dict[str, Any], record_id: str) -> Optional[ValidationResult]:
+    def _apply_rule(self, rule: ValidationRule, record: Dict[str, Any], record_id: Optional[str]) -> Optional[ValidationResult]:
         """Apply a single validation rule to a record"""
         field_value = record.get(rule.field)
 
@@ -271,7 +271,7 @@ class ValidationEngine:
 
         return None
 
-    def _validate_format(self, rule: ValidationRule, value: Any, record_id: str) -> Optional[ValidationResult]:
+    def _validate_format(self, rule: ValidationRule, value: Any, record_id: Optional[str]) -> Optional[ValidationResult]:
         """Validate field format"""
         if "pattern" in rule.parameters:
             pattern = rule.parameters["pattern"]
@@ -314,7 +314,7 @@ class ValidationEngine:
 
         return None
 
-    def _validate_range(self, rule: ValidationRule, value: Any, record_id: str) -> Optional[ValidationResult]:
+    def _validate_range(self, rule: ValidationRule, value: Any, record_id: Optional[str]) -> Optional[ValidationResult]:
         """Validate field range"""
         try:
             numeric_value = float(value)
@@ -356,7 +356,7 @@ class ValidationEngine:
 
         return None
 
-    def _validate_completeness(self, rule: ValidationRule, value: Any, record_id: str) -> Optional[ValidationResult]:
+    def _validate_completeness(self, rule: ValidationRule, value: Any, record_id: Optional[str]) -> Optional[ValidationResult]:
         """Validate field completeness"""
         if rule.parameters.get("required", False) and (value is None or value == ''):
             return ValidationResult(
@@ -371,7 +371,7 @@ class ValidationEngine:
 
         return None
 
-    def _validate_consistency(self, rule: ValidationRule, record: Dict[str, Any], record_id: str) -> Optional[ValidationResult]:
+    def _validate_consistency(self, rule: ValidationRule, record: Dict[str, Any], record_id: Optional[str]) -> Optional[ValidationResult]:
         """Validate field consistency with other fields"""
         if "reference_field" in rule.parameters:
             ref_field = rule.parameters["reference_field"]
@@ -393,7 +393,7 @@ class ValidationEngine:
 
         return None
 
-    def _validate_custom(self, rule: ValidationRule, value: Any, record: Dict[str, Any], record_id: str) -> Optional[ValidationResult]:
+    def _validate_custom(self, rule: ValidationRule, value: Any, record: Dict[str, Any], record_id: Optional[str]) -> Optional[ValidationResult]:
         """Apply custom validation logic"""
         # Placeholder for custom validation functions
         # Could be extended with user-defined validation functions
@@ -613,7 +613,7 @@ class DataQualityAnalyzer:
             for idx, (_, row) in enumerate(missing_mask.iterrows()):
                 missing_fields = [col for col, missing in row.items() if missing]
                 if len(missing_fields) > 1:
-                    pattern_key = "_".join(sorted(missing_fields))
+                    pattern_key = "_".join(sorted([str(field) for field in missing_fields]))
                     if pattern_key not in patterns:
                         patterns[pattern_key] = []
                     patterns[pattern_key].append(str(df.iloc[idx]['id']))
@@ -771,7 +771,8 @@ class DataCleaner:
         # Apply cleaning to each record
         for idx, (_, record) in enumerate(cleaned_df.iterrows()):
             cleaned_record = self.clean_record(record.to_dict())
-            cleaned_df.iloc[idx] = cleaned_record
+            for key, value in cleaned_record.items():
+                cleaned_df.at[idx, key] = value
 
         logger.info("Data cleaning completed")
         return cleaned_df
@@ -938,20 +939,20 @@ class ValidationReporter:
         print(f"   • Accuracy Score: {overview['accuracy_score']:.2%}")
         print(f"   • Consistency Score: {overview['consistency_score']:.2%}")
 
-print("\n🚨 Issues Found:")
-print(f"   • Validation Errors: {issues['total_validation_errors']}")
-print(f"   • Validation Warnings: {issues['total_validation_warnings']}")
-print(f"   • Outlier Records: {issues['outlier_records_count']}")
-print(f"   • Duplicate Records: {issues['duplicate_records_count']}")
+        print("\n🚨 Issues Found:")
+        print(f"   • Validation Errors: {issues['total_validation_errors']}")
+        print(f"   • Validation Warnings: {issues['total_validation_warnings']}")
+        print(f"   • Outlier Records: {issues['outlier_records_count']}")
+        print(f"   • Duplicate Records: {issues['duplicate_records_count']}")
 
-if report['top_issues']:
-    print("\n🔍 Top Issues:")
-    for issue in report['top_issues'][:5]:  # Show top 5
-        print(f"   • {issue['description']} ({issue['count']} occurrences)")
+        if report['top_issues']:
+            print("\n🔍 Top Issues:")
+            for issue in report['top_issues'][:5]:  # Show top 5
+                print(f"   • {issue['description']} ({issue['count']} occurrences)")
 
-if report['recommendations']:
-    print("\n💡 Recommendations:")
-    for rec in report['recommendations'][:3]:  # Show top 3
+        if report['recommendations']:
+            print("\n💡 Recommendations:")
+            for rec in report['recommendations'][:3]:  # Show top 3
                 print(f"   • {rec}")
 
         print("="*60)
