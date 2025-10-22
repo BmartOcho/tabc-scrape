@@ -13,6 +13,9 @@ class APIConfig(BaseModel):
     timeout: int = Field(default=30, ge=1, le=300, description="Request timeout in seconds")
     max_retries: int = Field(default=3, ge=1, le=10, description="Maximum retry attempts")
     backoff_factor: float = Field(default=0.3, ge=0.1, le=5.0, description="Backoff factor for retries")
+    api_key_id: Optional[str] = Field(default=None, description="API Key ID for authentication")
+    api_key_secret: Optional[str] = Field(default=None, description="API Key Secret for authentication")
+    app_token: Optional[str] = Field(default=None, description="Socrata App Token for API requests")
 
     @validator('base_url')
     def validate_base_url(cls, v):
@@ -92,7 +95,10 @@ class Config(BaseModel):
                 'base_url': os.getenv('TABC_API_URL', 'https://data.texas.gov/api/odata/v4/naix-2893'),
                 'timeout': int(os.getenv('TABC_API_TIMEOUT', '30')),
                 'max_retries': int(os.getenv('TABC_API_MAX_RETRIES', '3')),
-                'backoff_factor': float(os.getenv('TABC_API_BACKOFF_FACTOR', '0.3'))
+                'backoff_factor': float(os.getenv('TABC_API_BACKOFF_FACTOR', '0.3')),
+                'api_key_id': os.getenv('API_KEY_ID'),
+                'api_key_secret': os.getenv('API_KEY_SECRET'),
+                'app_token': os.getenv('APP_TOKEN')
             },
             'scraping': {
                 'user_agent': os.getenv('TABC_SCRAPING_USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'),
@@ -128,7 +134,10 @@ class Config(BaseModel):
                 'base_url': self.api.base_url,
                 'timeout': self.api.timeout,
                 'max_retries': self.api.max_retries,
-                'backoff_factor': self.api.backoff_factor
+                'backoff_factor': self.api.backoff_factor,
+                'api_key_id': self.api.api_key_id[:8] + '...' if self.api.api_key_id else None,
+                'api_key_secret': '***masked***' if self.api.api_key_secret else None,
+                'app_token': self.api.app_token[:8] + '...' if self.api.app_token else None
             },
             'scraping': {
                 'user_agent': self.scraping.user_agent,

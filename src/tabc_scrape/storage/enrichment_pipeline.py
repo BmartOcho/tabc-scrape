@@ -90,9 +90,9 @@ class DataEnrichmentPipeline:
         logger.info(f"Starting enrichment for restaurant {restaurant_id}")
 
         try:
-            # Get restaurant data
-            restaurant = self.db.get_restaurant_by_id(restaurant_id)
-            if not restaurant:
+            # Get restaurant data as dict to avoid session issues
+            restaurant_data = self.db.get_restaurant_dict_by_id(restaurant_id)
+            if not restaurant_data:
                 errors.append(f"Restaurant {restaurant_id} not found in database")
                 return EnrichmentResult(
                     restaurant_id=restaurant_id,
@@ -103,13 +103,18 @@ class DataEnrichmentPipeline:
                     data_collected={}
                 )
 
+            # Extract data to avoid session issues
+            location_name = restaurant_data['location_name']
+            full_address = restaurant_data['full_address']
+            location_county = restaurant_data['location_county']
+
             # 1. Concept Classification
             if self.enable_concept_classification:
                 try:
-                    logger.info(f"Classifying concept for {restaurant.location_name}")
+                    logger.info(f"Classifying concept for {location_name}")
                     classification = await self.concept_classifier.classify_restaurant(
-                        restaurant.location_name,
-                        restaurant.full_address
+                        location_name,
+                        full_address
                     )
 
                     if classification.confidence > 0.3:  # Minimum confidence threshold
@@ -126,16 +131,16 @@ class DataEnrichmentPipeline:
             # 2. Population Analysis
             if self.enable_population_analysis:
                 try:
-                    logger.info(f"Analyzing population data for {restaurant.location_name}")
+                    logger.info(f"Analyzing population data for {location_name}")
                     population_result = await self.population_analyzer.analyze_location(
-                        restaurant.location_name,
-                        restaurant.full_address
+                        location_name,
+                        full_address
                     )
 
                     if population_result.census_data_available:
                         self.db.store_population_data(restaurant_id, population_result.__dict__)
                         data_collected['population_analysis'] = True
-                        logger.info(f"Population analysis completed: {population_result.population_1_mile:,}"," people within 1 mile")
+                        logger.info(f"Population analysis completed: {population_result.population_1_mile:,} people within 1 mile")
                     else:
                         warnings.append("Population analysis returned no data")
 
@@ -146,11 +151,11 @@ class DataEnrichmentPipeline:
             # 3. Square Footage Scraping
             if self.enable_square_footage_scraping:
                 try:
-                    logger.info(f"Scraping square footage for {restaurant.location_name}")
+                    logger.info(f"Scraping square footage for {location_name}")
                     sqft_result = await self.square_footage_scraper.scrape_square_footage(
-                        restaurant.location_name,
-                        restaurant.full_address,
-                        restaurant.location_county
+                        location_name,
+                        full_address,
+                        location_county
                     )
 
                     if sqft_result.square_footage:

@@ -11,7 +11,10 @@ dev_config = Config(
         base_url=os.getenv('TABC_API_URL', 'https://data.texas.gov/api/odata/v4/naix-2893'),
         timeout=30,
         max_retries=3,
-        backoff_factor=0.3
+        backoff_factor=0.3,
+        api_key_id=os.getenv('API_KEY_ID'),
+        api_key_secret=os.getenv('API_KEY_SECRET'),
+        app_token=os.getenv('APP_TOKEN')
     ),
     scraping=ScrapingConfig(
         user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (Development)',

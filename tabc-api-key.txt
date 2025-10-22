@@ -1,0 +1,2 @@
+API_KEY_ID=1qah3gxsa7hq22uv7pq1qb6j2
+API_KEY_SECRET=owqiugc9q94bnvh5r11n3ibvhq1zs2k72lnz8re98woh0neug

@@ -1,0 +1,53 @@
+TABC DATASET FIELD DEFINITIONS
+
+CORE FIELDS:
+============
+Taxpayer Number
+Taxpayer Name
+Taxpayer Address
+Taxpayer City
+Taxpayer State
+Taxpayer Zip
+Taxpayer County
+Location Number
+Location Name
+Location Address
+Location City
+Location State
+Location Zip
+Location County
+TABC Permit Number
+Inside/Outside City Limits Code (Y/N)
+Responsibility Begin Date (YYYYMMDD)
+Responsibility End Date (YYYYMMDD)
+Obligation End Date (YYYYMMDD)
+Liquor Receipts
+Wine Receipts
+Beer Receipts
+Cover Charge Receipts
+Total Receipts*
+
+FIELD DEFINITIONS:
+==================
+TABC Permit Number: The permit number assigned by the Texas Alcoholic
+Beverage Commission.
+
+Responsibility Begin Date: The date in which the taxpayer became
+liable for mixed beverage tax pertaining to the particular location.
+
+Responsibility End Date: The date in which the taxpayer was no longer
+liable for mixed beverage tax pertaining to the particular location.
+
+Obligation End Date = Last Day of Reporting Period.
+
+Cover Charge Receipts: Includes reported gross cover charges subject
+to mixed beverage gross receipts tax. Does not include reported cover
+charges subject to sales tax.
+
+Total Receipts = Liquor + Wine + Beer + Cover Charge. To calculate the
+tax due, multiply the total receipts by .067 if reporting period is
+January 1, 2014 or greater and by .14 if reporting period is prior to
+January 1, 2014.
+
+Inside/Outside City Limits Code: Y/N indicator for whether the location
+is inside or outside city limits.

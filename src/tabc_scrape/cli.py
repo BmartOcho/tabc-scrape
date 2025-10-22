@@ -47,7 +47,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--limit', '-l', type=int, help='Maximum number of restaurants to fetch')
+@click.option('--limit', '-l', type=int, default=1000, help='Maximum number of restaurants to fetch')
 @click.option('--batch-size', '-b', type=int, default=1000, help='Batch size for API requests')
 @click.option('--database-url', help='Database URL override')
 @click.option('--active-only', is_flag=True, help='Fetch only currently active businesses (exclude closed locations)')
@@ -71,17 +71,17 @@ def fetch(limit, batch_size, database_url, active_only):
 
         # Fetch restaurant data
         if active_only:
-            click.echo(f"[DATA] Fetching active restaurant data only (batch size: {batch_size})...")
-            restaurants = await api_client.get_active_restaurants(batch_size=batch_size)
+            click.echo(f"[DATA] Fetching active restaurant data only (batch size: {batch_size}, limit: {limit})...")
+            restaurants = await api_client.get_active_restaurants(batch_size=batch_size, limit=limit)
         else:
-            click.echo(f"[DATA] Fetching all restaurant data (batch size: {batch_size})...")
-            restaurants = await api_client.get_all_restaurants(batch_size=batch_size)
+            click.echo(f"[DATA] Fetching all restaurant data (batch size: {batch_size}, limit: {limit})...")
+            restaurants = await api_client.get_all_restaurants(batch_size=batch_size, limit=limit)
 
         if not restaurants:
             click.echo("[WARN]  No restaurant data retrieved")
             return
 
-        click.echo(f"✅ Retrieved {len(restaurants)} restaurant records")
+        click.echo(f"[SUCCESS] Retrieved {len(restaurants)} restaurant records")
 
         # Show filtering info if active-only was used
         if active_only:
@@ -91,7 +91,7 @@ def fetch(limit, batch_size, database_url, active_only):
         click.echo("[SAVE] Storing data in database...")
         stored_count = db_manager.store_restaurants([r.__dict__ for r in restaurants])
 
-        click.echo(f"✅ Successfully stored {stored_count} restaurant records")
+        click.echo(f"[SUCCESS] Successfully stored {stored_count} restaurant records")
         click.echo("[SUCCESS] Restaurant data fetch completed!")
 
     try:
@@ -136,16 +136,16 @@ def enrich(limit, batch_size, database_url, skip_square_footage, skip_concept_cl
 
         click.echo("[DATA] Configuration:")
         click.echo(f"   • Batch size: {pipeline.batch_size}")
-        click.echo(f"   • Square footage scraping: {'✅' if pipeline.enable_square_footage_scraping else '⏭️  skipped'}")
-        click.echo(f"   • Concept classification: {'✅' if pipeline.enable_concept_classification else '⏭️  skipped'}")
-        click.echo(f"   • Population analysis: {'✅' if pipeline.enable_population_analysis else '⏭️  skipped'}")
+        click.echo(f"   • Square footage scraping: {'[ENABLED]' if pipeline.enable_square_footage_scraping else '[SKIPPED]'}")
+        click.echo(f"   • Concept classification: {'[ENABLED]' if pipeline.enable_concept_classification else '[SKIPPED]'}")
+        click.echo(f"   • Population analysis: {'[ENABLED]' if pipeline.enable_population_analysis else '[SKIPPED]'}")
 
         # Run enrichment pipeline
-        click.echo("🚀 Running enrichment pipeline...")
+        click.echo("[RUNNING] Running enrichment pipeline...")
         stats = await pipeline.run_full_enrichment_pipeline(limit=limit)
 
         # Display results
-        click.echo("✅ Enrichment completed!")
+        click.echo("[SUCCESS] Enrichment completed!")
         click.echo("[CHART] Results:")
         click.echo(f"   • Restaurants processed: {stats.total_restaurants}")
         click.echo(f"   • Successful enrichments: {stats.successful_enrichments}")
@@ -199,7 +199,7 @@ def export(format, output, database_url, enriched_only):
         Path(output).parent.mkdir(parents=True, exist_ok=True)
 
         click.echo(f"[DATA] Export format: {format.upper()}")
-        click.echo(f"📁 Output file: {output}")
+        click.echo(f"[FILE] Output file: {output}")
 
         if enriched_only:
             click.echo("[SEARCH] Exporting only enriched restaurants...")
@@ -213,7 +213,7 @@ def export(format, output, database_url, enriched_only):
         else:
             exported_path = db_manager.export_to_csv(output)
 
-        click.echo(f"✅ Data exported successfully to: {exported_path}")
+        click.echo(f"[SUCCESS] Data exported successfully to: {exported_path}")
 
         # Show file size info
         file_size = Path(exported_path).stat().st_size
@@ -245,7 +245,7 @@ def validate(input_file, output_report, database_url, detailed):
 
         # Get data to validate
         if input_file:
-            click.echo(f"📂 Loading data from: {input_file}")
+            click.echo(f"[FILE] Loading data from: {input_file}")
             # This would load from file - for now use database
             df = db_manager.get_enriched_restaurants_dataframe()
         else:
@@ -256,7 +256,7 @@ def validate(input_file, output_report, database_url, detailed):
             click.echo("[WARN]  No data found to validate")
             return
 
-        click.echo(f"✅ Loaded {len(df)} records for validation")
+        click.echo(f"[SUCCESS] Loaded {len(df)} records for validation")
 
         # Generate comprehensive report
         click.echo("[LAB] Running validation checks...")
@@ -266,14 +266,14 @@ def validate(input_file, output_report, database_url, detailed):
         overview = report['dataset_overview']
         issues = report['issue_summary']
 
-        click.echo("✅ Validation completed!")
+        click.echo("[SUCCESS] Validation completed!")
         click.echo("[DATA] Quality Scores:")
         click.echo(f"   • Overall Quality: {overview['overall_quality_score']:.2%}")
         click.echo(f"   • Completeness: {overview['completeness_score']:.2%}")
         click.echo(f"   • Accuracy: {overview['accuracy_score']:.2%}")
         click.echo(f"   • Consistency: {overview['consistency_score']:.2%}")
 
-        click.echo("🚨 Issues Found:")
+        click.echo("[WARN] Issues Found:")
         click.echo(f"   • Validation Errors: {issues['total_validation_errors']}")
         click.echo(f"   • Validation Warnings: {issues['total_validation_warnings']}")
         click.echo(f"   • Outlier Records: {issues['outlier_records_count']}")

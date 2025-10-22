@@ -88,7 +88,9 @@ class DatabaseManager:
 
         for sql in indexes:
             try:
-                self.engine.execute(text(sql))
+                with self.engine.connect() as conn:
+                    conn.execute(text(sql))
+                    conn.commit()
                 logger.info(f"Created index: {sql}")
             except Exception as e:
                 logger.error(f"Error creating index {sql}: {e}")
@@ -157,6 +159,20 @@ class DatabaseManager:
         """
         with self.get_session() as session:
             return session.query(Restaurant).filter_by(id=restaurant_id).first()
+
+    def get_restaurant_dict_by_id(self, restaurant_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a specific restaurant as dictionary by ID
+
+        Args:
+            restaurant_id: Restaurant ID
+
+        Returns:
+            Restaurant dictionary or None if not found
+        """
+        with self.get_session() as session:
+            restaurant = session.query(Restaurant).filter_by(id=restaurant_id).first()
+            return restaurant.to_dict() if restaurant else None
 
     def get_restaurants_dataframe(self, limit: Optional[int] = None) -> pd.DataFrame:
         """
@@ -233,10 +249,13 @@ class DatabaseManager:
                 # Remove existing population data for this restaurant
                 session.query(PopulationData).filter_by(restaurant_id=restaurant_id).delete()
 
+                # Remove fields not in PopulationData model
+                filtered_data = {k: v for k, v in population_data.items() if k in PopulationData.__table__.columns.keys()}
+
                 # Create new population data record
                 pop_data = PopulationData(
                     restaurant_id=restaurant_id,
-                    **population_data
+                    **filtered_data
                 )
                 session.add(pop_data)
 
