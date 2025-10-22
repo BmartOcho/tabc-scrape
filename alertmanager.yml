@@ -1,0 +1,22 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alertmanager@example.com'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'webhook'
+
+receivers:
+  - name: 'webhook'
+    webhook_configs:
+      - url: 'http://localhost:5000/webhook/alert'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']

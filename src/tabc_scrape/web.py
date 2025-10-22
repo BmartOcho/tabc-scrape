@@ -3,16 +3,76 @@ Web server for health monitoring and API endpoints
 """
 
 import logging
+import time
 from flask import Flask, jsonify, request, Response
 from .config import config
 from .storage.database import DatabaseManager
 from .data.api_client import TexasComptrollerAPI
 import pandas as pd
 import io
+from prometheus_client import Counter, Gauge, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 
 logger = logging.getLogger(__name__)
 
+# Prometheus metrics setup
+registry = CollectorRegistry()
 app = Flask(__name__)
+
+# Define metrics
+REQUEST_COUNT = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status_code'],
+    registry=registry
+)
+
+REQUEST_DURATION = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration in seconds',
+    ['method', 'endpoint'],
+    registry=registry
+)
+
+RESTAURANT_COUNT = Gauge(
+    'restaurants_total',
+    'Total number of restaurants in database',
+    registry=registry
+)
+
+ENRICHED_RESTAURANT_COUNT = Gauge(
+    'restaurants_enriched_total',
+    'Total number of enriched restaurants',
+    registry=registry
+)
+
+API_CALLS_TOTAL = Counter(
+    'api_calls_total',
+    'Total API calls made',
+    ['api_name', 'status'],
+    registry=registry
+)
+
+# Middleware to track HTTP requests
+@app.before_request
+def before_request():
+    request.start_time = time.time()
+
+@app.after_request
+def after_request(response):
+    if hasattr(request, 'start_time'):
+        duration = time.time() - request.start_time
+        REQUEST_DURATION.labels(
+            method=request.method,
+            endpoint=request.endpoint or 'unknown'
+        ).observe(duration)
+
+        REQUEST_COUNT.labels(
+            method=request.method,
+            endpoint=request.endpoint or 'unknown',
+            status_code=str(response.status_code)
+        ).inc()
+
+    return response
 
 @app.route('/health')
 def health_check():
@@ -47,19 +107,20 @@ def system_status():
 
 @app.route('/metrics')
 def metrics():
-    """Application metrics"""
+    """Prometheus metrics endpoint"""
     try:
+        # Update gauge metrics with current database stats
         db_manager = DatabaseManager()
         stats = db_manager.get_enrichment_stats()
 
-        return jsonify({
-            'total_restaurants': stats.get('total_restaurants', 0),
-            'enriched_restaurants': stats.get('restaurants_with_concept_classification', 0),
-            'uptime': 'unknown'  # Placeholder
-        })
+        RESTAURANT_COUNT.set(stats.get('total_restaurants', 0))
+        ENRICHED_RESTAURANT_COUNT.set(stats.get('restaurants_with_concept_classification', 0))
+
+        # Generate and return Prometheus metrics
+        return Response(generate_latest(registry), mimetype=CONTENT_TYPE_LATEST)
     except Exception as e:
         logger.error(f"Error in metrics endpoint: {e}")
-        return jsonify({'error': str(e)}), 500
+        return Response(f"Error generating metrics: {str(e)}", status=500, mimetype='text/plain')
 
 @app.route('/api/enriched-data')
 def get_enriched_data():

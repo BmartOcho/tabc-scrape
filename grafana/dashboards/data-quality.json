@@ -1,0 +1,56 @@
+{
+  "dashboard": {
+    "title": "Data Quality",
+    "tags": ["tabc-scrape", "quality"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Data Coverage (%)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(restaurants_enriched_total / restaurants_total) * 100",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total vs Enriched Restaurants",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "restaurants_total",
+            "refId": "A",
+            "datasource": "Prometheus"
+          },
+          {
+            "expr": "restaurants_enriched_total",
+            "refId": "B",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Count"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

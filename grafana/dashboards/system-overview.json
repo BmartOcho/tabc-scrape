@@ -1,0 +1,68 @@
+{
+  "dashboard": {
+    "title": "System Overview",
+    "tags": ["tabc-scrape", "system"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Restaurants",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "restaurants_total",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Enriched Restaurants",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "restaurants_enriched_total",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Enrichment Progress (%)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(restaurants_enriched_total / restaurants_total) * 100",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

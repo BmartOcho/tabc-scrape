@@ -36,6 +36,7 @@ great-expectations>=0.15.0,<1.0.0
 
 # Logging and monitoring
 structlog>=22.0.0,<24.0.0
+prometheus-client>=0.16.0,<1.0.0
 
 # AI and NLP
 transformers>=4.21.0,<5.0.0

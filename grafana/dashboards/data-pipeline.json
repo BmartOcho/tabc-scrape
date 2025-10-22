@@ -1,0 +1,88 @@
+{
+  "dashboard": {
+    "title": "Data Pipeline",
+    "tags": ["tabc-scrape", "pipeline"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Enriched Restaurants",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "restaurants_enriched_total",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total API Calls",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "api_calls_total",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "API Call Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(api_calls_total[5m])",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Calls/sec"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "API Calls by Status",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "api_calls_total{status=\"success\"}",
+            "refId": "A",
+            "datasource": "Prometheus"
+          },
+          {
+            "expr": "api_calls_total{status=\"error\"}",
+            "refId": "B",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Calls"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

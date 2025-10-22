@@ -1,0 +1,85 @@
+{
+  "dashboard": {
+    "title": "Error Tracking",
+    "tags": ["tabc-scrape", "errors"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "HTTP Error Rate (%)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(rate(http_requests_total{status_code=~\"5..\"}[5m]) / rate(http_requests_total[5m])) * 100",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Percent",
+            "min": 0,
+            "max": 100
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "API Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(api_calls_total{status=\"error\"}[5m])",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors/sec"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "HTTP Errors by Endpoint",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "http_requests_total{status_code=~\"5..\"}",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "API Errors by API Name",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "api_calls_total{status=\"error\"}",
+            "refId": "A",
+            "datasource": "Prometheus"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Errors"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}
