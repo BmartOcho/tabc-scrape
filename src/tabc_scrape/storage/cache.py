@@ -1,36 +1,28 @@
 """
-Redis caching service for API responses and geocoding results
+Simple in-memory caching service (Redis fallback)
 """
 
 import json
 import logging
 import hashlib
+import time
 from typing import Any, Optional, Dict, Union
-import aioredis
-from datetime import timedelta
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 from ..config import config
 
 logger = logging.getLogger(__name__)
 
 class CacheService:
-    """Redis-based caching service using aioredis"""
+    """Simple in-memory caching service (Redis fallback)"""
 
     def __init__(self):
-        self.enabled = config.cache.enabled
-        self.client = None
+        self.enabled = True  # Enable simple caching for now
+        self._cache = defaultdict(dict)
+        self._expiry = defaultdict(dict)
 
-        if self.enabled:
-            try:
-                # Note: aioredis connection should be established asynchronously
-                # For now, we'll set up the connection parameters
-                self.redis_url = f"redis://:{config.cache.password}@{config.cache.host}:{config.cache.port}/{config.cache.db}" if config.cache.password else f"redis://{config.cache.host}:{config.cache.port}/{config.cache.db}"
-                logger.info(f"Redis cache configured for {config.cache.host}:{config.cache.port}")
-
-            except Exception as e:
-                logger.error(f"Error configuring Redis: {e}")
-                logger.warning("Caching disabled due to configuration error")
-                self.enabled = False
+        logger.info("Using simple in-memory cache")
 
     def _make_key(self, prefix: str, identifier: str) -> str:
         """Generate a cache key with prefix and identifier"""
@@ -68,21 +60,22 @@ class CacheService:
         if not self.enabled:
             return None
 
-        try:
-            redis_client = aioredis.from_url(self.redis_url, decode_responses=True)
-            key = self._make_key(prefix, identifier)
-            cached_value = await redis_client.get(key)
+        key = self._make_key(prefix, identifier)
+        current_time = time.time()
 
-            if cached_value is not None:
+        # Check if key exists and hasn't expired
+        if key in self._cache[prefix]:
+            expiry_time = self._expiry[prefix].get(key, 0)
+            if expiry_time == 0 or current_time < expiry_time:  # 0 means no expiry
                 logger.debug(f"Cache hit for key: {key}")
-                return self._deserialize_value(cached_value)
+                return self._deserialize_value(self._cache[prefix][key])
             else:
-                logger.debug(f"Cache miss for key: {key}")
-                return None
+                # Expired, remove it
+                del self._cache[prefix][key]
+                del self._expiry[prefix][key]
 
-        except Exception as e:
-            logger.error(f"Redis error during get operation: {e}")
-            return None
+        logger.debug(f"Cache miss for key: {key}")
+        return None
 
     async def set(self, prefix: str, identifier: str, value: Any, ttl: Optional[int] = None) -> bool:
         """
@@ -101,24 +94,24 @@ class CacheService:
             return False
 
         try:
-            redis_client = aioredis.from_url(self.redis_url, decode_responses=True)
             key = self._make_key(prefix, identifier)
             serialized_value = self._serialize_value(value)
 
             if ttl is None:
                 ttl = config.cache.default_ttl
 
-            success = await redis_client.setex(key, ttl, serialized_value)
-
-            if success:
-                logger.debug(f"Cached value for key: {key} (TTL: {ttl}s)")
+            # Store with expiry time (0 means no expiry)
+            self._cache[prefix][key] = serialized_value
+            if ttl > 0:
+                self._expiry[prefix][key] = time.time() + ttl
             else:
-                logger.warning(f"Failed to cache value for key: {key}")
+                self._expiry[prefix][key] = 0  # No expiry
 
-            return success
+            logger.debug(f"Cached value for key: {key} (TTL: {ttl}s)")
+            return True
 
         except Exception as e:
-            logger.error(f"Redis error during set operation: {e}")
+            logger.error(f"Cache error during set operation: {e}")
             return False
 
     async def delete(self, prefix: str, identifier: str) -> bool:
@@ -135,20 +128,16 @@ class CacheService:
         if not self.enabled:
             return False
 
-        try:
-            redis_client = aioredis.from_url(self.redis_url, decode_responses=True)
-            key = self._make_key(prefix, identifier)
-            deleted_count = await redis_client.delete(key)
+        key = self._make_key(prefix, identifier)
 
-            if deleted_count > 0:
-                logger.debug(f"Deleted cache key: {key}")
-                return True
-            else:
-                logger.debug(f"Cache key not found for deletion: {key}")
-                return False
-
-        except Exception as e:
-            logger.error(f"Redis error during delete operation: {e}")
+        if key in self._cache[prefix]:
+            del self._cache[prefix][key]
+            if key in self._expiry[prefix]:
+                del self._expiry[prefix][key]
+            logger.debug(f"Deleted cache key: {key}")
+            return True
+        else:
+            logger.debug(f"Cache key not found for deletion: {key}")
             return False
 
     async def exists(self, prefix: str, identifier: str) -> bool:
@@ -165,13 +154,20 @@ class CacheService:
         if not self.enabled:
             return False
 
-        try:
-            redis_client = aioredis.from_url(self.redis_url, decode_responses=True)
-            key = self._make_key(prefix, identifier)
-            return bool(await redis_client.exists(key))
-        except Exception as e:
-            logger.error(f"Redis error during exists check: {e}")
-            return False
+        key = self._make_key(prefix, identifier)
+        current_time = time.time()
+
+        # Check if key exists and hasn't expired
+        if key in self._cache[prefix]:
+            expiry_time = self._expiry[prefix].get(key, 0)
+            if expiry_time == 0 or current_time < expiry_time:
+                return True
+            else:
+                # Expired, clean it up
+                del self._cache[prefix][key]
+                del self._expiry[prefix][key]
+
+        return False
 
     async def clear_pattern(self, pattern: str) -> bool:
         """
@@ -186,37 +182,27 @@ class CacheService:
         if not self.enabled:
             return False
 
-        try:
-            redis_client = aioredis.from_url(self.redis_url, decode_responses=True)
-            keys = await redis_client.keys(pattern)
-            if keys:
-                deleted_count = await redis_client.delete(*keys)
-                logger.info(f"Cleared {deleted_count} cache keys matching pattern: {pattern}")
-                return True
-            return True
-        except Exception as e:
-            logger.error(f"Redis error during pattern clear: {e}")
-            return False
+        # Simple pattern matching (just clear all for now)
+        cleared_count = 0
+        for prefix in list(self._cache.keys()):
+            for key in list(self._cache[prefix].keys()):
+                self._cache[prefix].pop(key, None)
+                self._expiry[prefix].pop(key, None)
+                cleared_count += 1
+
+        logger.info(f"Cleared {cleared_count} cache entries")
+        return True
 
     async def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics"""
-        if not self.enabled:
-            return {'enabled': False}
-
-        try:
-            redis_client = aioredis.from_url(self.redis_url, decode_responses=True)
-            info = await redis_client.info()
-            return {
-                'enabled': True,
-                'connected': True,
-                'keyspace_hits': info.get('keyspace_hits', 0),
-                'keyspace_misses': info.get('keyspace_misses', 0),
-                'memory_used': info.get('used_memory_human', '0B'),
-                'uptime_days': info.get('uptime_in_days', 0)
-            }
-        except Exception as e:
-            logger.error(f"Error getting cache stats: {e}")
-            return {'enabled': True, 'connected': False, 'error': str(e)}
+        total_entries = sum(len(keys) for keys in self._cache.values())
+        return {
+            'enabled': True,
+            'connected': True,
+            'total_entries': total_entries,
+            'cache_size_mb': 'N/A (in-memory)',
+            'type': 'memory'
+        }
 
 # Global cache service instance
 cache_service = CacheService()

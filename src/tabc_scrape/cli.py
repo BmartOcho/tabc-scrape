@@ -4,6 +4,7 @@ TABC Restaurant Data Scraper - CLI Interface
 Main entry point for the tabc-scrape command line tool.
 """
 
+import asyncio
 import logging
 import sys
 import signal
@@ -49,35 +50,42 @@ def cli():
 @click.option('--limit', '-l', type=int, help='Maximum number of restaurants to fetch')
 @click.option('--batch-size', '-b', type=int, default=1000, help='Batch size for API requests')
 @click.option('--database-url', help='Database URL override')
-def fetch(limit, batch_size, database_url):
+@click.option('--active-only', is_flag=True, help='Fetch only currently active businesses (exclude closed locations)')
+def fetch(limit, batch_size, database_url, active_only):
     """
     Fetch restaurant data from Texas Comptroller API
 
     Downloads restaurant data and stores it in the local database.
     """
-    click.echo("Starting restaurant data fetch...")
-
-    try:
+    async def _async_fetch():
         # Initialize components
         api_client = TexasComptrollerAPI()
         db_manager = DatabaseManager(database_url)
 
         # Test API connection first
-        if not api_client.test_connection():
+        if not await api_client.test_connection():
             click.echo("[ERROR] Failed to connect to Texas Comptroller API")
             return
 
         click.echo("API connection successful")
 
         # Fetch restaurant data
-        click.echo(f"[DATA] Fetching restaurant data (batch size: {batch_size})...")
-        restaurants = api_client.get_all_restaurants(batch_size=batch_size)
+        if active_only:
+            click.echo(f"[DATA] Fetching active restaurant data only (batch size: {batch_size})...")
+            restaurants = await api_client.get_active_restaurants(batch_size=batch_size)
+        else:
+            click.echo(f"[DATA] Fetching all restaurant data (batch size: {batch_size})...")
+            restaurants = await api_client.get_all_restaurants(batch_size=batch_size)
 
         if not restaurants:
             click.echo("[WARN]  No restaurant data retrieved")
             return
 
         click.echo(f"✅ Retrieved {len(restaurants)} restaurant records")
+
+        # Show filtering info if active-only was used
+        if active_only:
+            click.echo(f"[INFO] Filtered to active businesses only")
 
         # Store in database
         click.echo("[SAVE] Storing data in database...")
@@ -86,6 +94,8 @@ def fetch(limit, batch_size, database_url):
         click.echo(f"✅ Successfully stored {stored_count} restaurant records")
         click.echo("[SUCCESS] Restaurant data fetch completed!")
 
+    try:
+        asyncio.run(_async_fetch())
     except Exception as e:
         logger.error(f"Error during fetch: {e}")
         click.echo(f"[ERROR] Error during fetch: {e}")
@@ -106,9 +116,9 @@ def enrich(limit, batch_size, database_url, skip_square_footage, skip_concept_cl
     Enriches restaurant data with concept classification, population analysis,
     and square footage information.
     """
-    click.echo("[LAB] Starting data enrichment pipeline...")
+    async def _async_enrich():
+        click.echo("[LAB] Starting data enrichment pipeline...")
 
-    try:
         # Initialize database and pipeline
         db_manager = DatabaseManager(database_url)
         pipeline = DataEnrichmentPipeline(db_manager)
@@ -132,7 +142,7 @@ def enrich(limit, batch_size, database_url, skip_square_footage, skip_concept_cl
 
         # Run enrichment pipeline
         click.echo("🚀 Running enrichment pipeline...")
-        stats = pipeline.run_full_enrichment_pipeline(limit=limit)
+        stats = await pipeline.run_full_enrichment_pipeline(limit=limit)
 
         # Display results
         click.echo("✅ Enrichment completed!")
@@ -153,6 +163,8 @@ def enrich(limit, batch_size, database_url, skip_square_footage, skip_concept_cl
             for error_type, count in stats.error_summary.items():
                 click.echo(f"   • {error_type}: {count}")
 
+    try:
+        asyncio.run(_async_enrich())
     except Exception as e:
         logger.error(f"Error during enrichment: {e}")
         click.echo(f"[ERROR] Error during enrichment: {e}")
@@ -323,16 +335,16 @@ def status():
         # Test connections
         click.echo("[LINK] Connection Tests:")
         db_ok = db_manager.test_connection()
-        click.echo(f"   • Database: {'✅' if db_ok else '[ERROR]'}")
+        click.echo(f"   • Database: {'OK' if db_ok else 'ERROR'}")
 
         api_client = TexasComptrollerAPI()
         api_ok = api_client.test_connection()
-        click.echo(f"   • Texas Comptroller API: {'✅' if api_ok else '[ERROR]'}")
+        click.echo(f"   • Texas Comptroller API: {'OK' if api_ok else 'ERROR'}")
 
         if db_ok and api_ok:
-            click.echo("[SUCCESS] System is ready!")
+            click.echo("SUCCESS: System is ready!")
         else:
-            click.echo("[WARN]  Some connections failed")
+            click.echo("WARNING: Some connections failed")
 
     except Exception as e:
         logger.error(f"Error getting status: {e}")

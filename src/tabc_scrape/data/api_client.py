@@ -48,6 +48,26 @@ class RestaurantRecord:
         """Get full address for geocoding"""
         return f"{self.location_address}, {self.location_city}, {self.location_state} {self.location_zip}"
 
+    @property
+    def is_active(self) -> bool:
+        """Check if business is currently active based on responsibility end date"""
+        if not self.responsibility_end_date or self.responsibility_end_date.strip() == '':
+            # No end date means business is still active
+            return True
+
+        try:
+            from datetime import datetime
+            # Convert YYYYMMDD to date object
+            end_date = datetime.strptime(self.responsibility_end_date, '%Y%m%d')
+            current_date = datetime.now()
+
+            # If end date is in the future or today, business is active
+            return end_date.date() >= current_date.date()
+        except ValueError:
+            # If date parsing fails, assume active (better to include than exclude)
+            logger.warning(f"Could not parse responsibility_end_date: {self.responsibility_end_date}")
+            return True
+
 class TexasComptrollerAPI:
     """Client for Texas Comptroller restaurant data API"""
 
@@ -195,6 +215,27 @@ class TexasComptrollerAPI:
 
         logger.info(f"Successfully fetched {len(restaurants)} restaurant records")
         return restaurants
+
+    async def get_active_restaurants(self, batch_size: int = 1000) -> List[RestaurantRecord]:
+        """
+        Fetch only active restaurant records (excluding closed businesses)
+
+        Args:
+            batch_size: Number of records to fetch per request
+
+        Returns:
+            List of active RestaurantRecord objects
+        """
+        logger.info("Fetching active restaurant data from Texas Comptroller API")
+
+        # Get all restaurants first
+        all_restaurants = await self.get_all_restaurants(batch_size)
+
+        # Filter for active businesses only
+        active_restaurants = [r for r in all_restaurants if r.is_active]
+
+        logger.info(f"Filtered {len(all_restaurants)} total restaurants to {len(active_restaurants)} active restaurants")
+        return active_restaurants
 
     async def get_restaurants_dataframe(self, limit: Optional[int] = None) -> pd.DataFrame:
         """

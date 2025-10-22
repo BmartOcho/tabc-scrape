@@ -1,3 +1,394 @@
 2025-10-21 16:54:29,062 - tabc_scrape.storage.database - INFO - Database tables created successfully
 2025-10-21 16:54:29,080 - tabc_scrape.storage.database - ERROR - Database session error: Textual SQL expression 'SELECT 1' should be explicitly declared as text('SELECT 1')
 2025-10-21 16:54:29,080 - tabc_scrape.storage.database - ERROR - Database connection test failed: Textual SQL expression 'SELECT 1' should be explicitly declared as text('SELECT 1')
+2025-10-22 10:05:10,040 - tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-22 10:05:10,046 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:10,047 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-22 10:05:10,047 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("restaurants")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("concept_classifications")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("population_data")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("square_footage_data")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,049 - sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("enrichment_jobs")
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - PRAGMA temp.table_info("data_quality_metrics")
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE restaurants (
+	id VARCHAR NOT NULL, 
+	taxpayer_number VARCHAR, 
+	taxpayer_name VARCHAR, 
+	taxpayer_address VARCHAR, 
+	taxpayer_city VARCHAR, 
+	taxpayer_state VARCHAR, 
+	taxpayer_zip VARCHAR, 
+	taxpayer_county VARCHAR, 
+	location_number VARCHAR, 
+	location_name VARCHAR, 
+	location_address VARCHAR, 
+	location_city VARCHAR, 
+	location_state VARCHAR, 
+	location_zip VARCHAR, 
+	location_county VARCHAR, 
+	tabc_permit_number VARCHAR, 
+	responsibility_begin_date VARCHAR, 
+	responsibility_end_date VARCHAR, 
+	obligation_end_date VARCHAR, 
+	liquor_receipts FLOAT, 
+	wine_receipts FLOAT, 
+	beer_receipts FLOAT, 
+	cover_charge_receipts FLOAT, 
+	total_receipts FLOAT, 
+	latitude FLOAT, 
+	longitude FLOAT, 
+	geocoding_confidence FLOAT, 
+	data_quality_score FLOAT, 
+	is_active BOOLEAN, 
+	last_updated DATETIME, 
+	created_at DATETIME, 
+	PRIMARY KEY (id)
+)
+
+
+2025-10-22 10:05:10,050 - sqlalchemy.engine.Engine - INFO - [no key 0.00016s] ()
+2025-10-22 10:05:10,054 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurants_location_name ON restaurants (location_name)
+2025-10-22 10:05:10,054 - sqlalchemy.engine.Engine - INFO - [no key 0.00023s] ()
+2025-10-22 10:05:10,056 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurants_id ON restaurants (id)
+2025-10-22 10:05:10,056 - sqlalchemy.engine.Engine - INFO - [no key 0.00010s] ()
+2025-10-22 10:05:10,058 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-22 10:05:10,058 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,059 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurants_taxpayer_number ON restaurants (taxpayer_number)
+2025-10-22 10:05:10,059 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,062 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurant_location_state ON restaurants (location_state)
+2025-10-22 10:05:10,062 - sqlalchemy.engine.Engine - INFO - [no key 0.00011s] ()
+2025-10-22 10:05:10,064 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurants_tabc_permit_number ON restaurants (tabc_permit_number)
+2025-10-22 10:05:10,065 - sqlalchemy.engine.Engine - INFO - [no key 0.00011s] ()
+2025-10-22 10:05:10,067 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurant_longitude ON restaurants (longitude)
+2025-10-22 10:05:10,067 - sqlalchemy.engine.Engine - INFO - [no key 0.00011s] ()
+2025-10-22 10:05:10,068 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurant_location_city ON restaurants (location_city)
+2025-10-22 10:05:10,069 - sqlalchemy.engine.Engine - INFO - [no key 0.00010s] ()
+2025-10-22 10:05:10,070 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-22 10:05:10,070 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,072 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_restaurant_latitude ON restaurants (latitude)
+2025-10-22 10:05:10,072 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,074 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE concept_classifications (
+	id INTEGER NOT NULL, 
+	restaurant_id VARCHAR, 
+	primary_concept VARCHAR, 
+	secondary_concepts JSON, 
+	confidence FLOAT, 
+	ai_confidence FLOAT, 
+	source VARCHAR, 
+	web_data_sources JSON, 
+	keywords_found JSON, 
+	price_range VARCHAR, 
+	ambiance_indicators JSON, 
+	classified_at DATETIME, 
+	last_updated DATETIME, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(restaurant_id) REFERENCES restaurants (id)
+)
+
+
+2025-10-22 10:05:10,074 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,076 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_concept_confidence ON concept_classifications (confidence)
+2025-10-22 10:05:10,076 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,078 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_concept_classifications_restaurant_id ON concept_classifications (restaurant_id)
+2025-10-22 10:05:10,078 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,080 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_concept_source ON concept_classifications (source)
+2025-10-22 10:05:10,080 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,082 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_concept_classifications_id ON concept_classifications (id)
+2025-10-22 10:05:10,082 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,084 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_concept_classifications_primary_concept ON concept_classifications (primary_concept)
+2025-10-22 10:05:10,084 - sqlalchemy.engine.Engine - INFO - [no key 0.00013s] ()
+2025-10-22 10:05:10,086 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE population_data (
+	id INTEGER NOT NULL, 
+	restaurant_id VARCHAR, 
+	population_1_mile INTEGER, 
+	population_3_mile INTEGER, 
+	population_5_mile INTEGER, 
+	population_10_mile INTEGER, 
+	drinking_age_1_mile INTEGER, 
+	drinking_age_3_mile INTEGER, 
+	drinking_age_5_mile INTEGER, 
+	drinking_age_10_mile INTEGER, 
+	median_income_1_mile FLOAT, 
+	median_age_1_mile FLOAT, 
+	average_household_size_1_mile FLOAT, 
+	source VARCHAR, 
+	confidence FLOAT, 
+	census_data_available BOOLEAN, 
+	analyzed_at DATETIME, 
+	last_updated DATETIME, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(restaurant_id) REFERENCES restaurants (id)
+)
+
+
+2025-10-22 10:05:10,086 - sqlalchemy.engine.Engine - INFO - [no key 0.00013s] ()
+2025-10-22 10:05:10,088 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_population_data_restaurant_id ON population_data (restaurant_id)
+2025-10-22 10:05:10,088 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,090 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_population_1_mile ON population_data (population_1_mile)
+2025-10-22 10:05:10,090 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,092 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_population_10_mile ON population_data (population_10_mile)
+2025-10-22 10:05:10,092 - sqlalchemy.engine.Engine - INFO - [no key 0.00015s] ()
+2025-10-22 10:05:10,094 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_population_3_mile ON population_data (population_3_mile)
+2025-10-22 10:05:10,094 - sqlalchemy.engine.Engine - INFO - [no key 0.00010s] ()
+2025-10-22 10:05:10,098 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_population_data_id ON population_data (id)
+2025-10-22 10:05:10,098 - sqlalchemy.engine.Engine - INFO - [no key 0.00017s] ()
+2025-10-22 10:05:10,099 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_population_5_mile ON population_data (population_5_mile)
+2025-10-22 10:05:10,099 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,101 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE square_footage_data (
+	id INTEGER NOT NULL, 
+	restaurant_id VARCHAR, 
+	square_footage INTEGER, 
+	source VARCHAR, 
+	confidence FLOAT, 
+	property_details JSON, 
+	source_url VARCHAR, 
+	scraped_at DATETIME, 
+	last_updated DATETIME, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(restaurant_id) REFERENCES restaurants (id)
+)
+
+
+2025-10-22 10:05:10,101 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,103 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-22 10:05:10,103 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,105 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_square_footage_data_id ON square_footage_data (id)
+2025-10-22 10:05:10,105 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,107 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-22 10:05:10,107 - sqlalchemy.engine.Engine - INFO - [no key 0.00010s] ()
+2025-10-22 10:05:10,108 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_square_footage_data_restaurant_id ON square_footage_data (restaurant_id)
+2025-10-22 10:05:10,108 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,111 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE enrichment_jobs (
+	id INTEGER NOT NULL, 
+	restaurant_id VARCHAR, 
+	job_type VARCHAR, 
+	status VARCHAR, 
+	progress INTEGER, 
+	started_at DATETIME, 
+	completed_at DATETIME, 
+	error_message TEXT, 
+	job_config JSON, 
+	results_summary JSON, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(restaurant_id) REFERENCES restaurants (id)
+)
+
+
+2025-10-22 10:05:10,111 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,112 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_enrichment_jobs_id ON enrichment_jobs (id)
+2025-10-22 10:05:10,112 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,114 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_job_type ON enrichment_jobs (job_type)
+2025-10-22 10:05:10,114 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,116 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_enrichment_jobs_restaurant_id ON enrichment_jobs (restaurant_id)
+2025-10-22 10:05:10,116 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,119 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_job_status ON enrichment_jobs (status)
+2025-10-22 10:05:10,119 - sqlalchemy.engine.Engine - INFO - [no key 0.00018s] ()
+2025-10-22 10:05:10,121 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE data_quality_metrics (
+	id INTEGER NOT NULL, 
+	restaurant_id VARCHAR, 
+	overall_quality_score FLOAT, 
+	completeness_score FLOAT, 
+	accuracy_score FLOAT, 
+	consistency_score FLOAT, 
+	timeliness_score FLOAT, 
+	validation_errors JSON, 
+	validation_warnings JSON, 
+	source_reliability_score FLOAT, 
+	data_freshness_days INTEGER, 
+	assessed_at DATETIME, 
+	last_updated DATETIME, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(restaurant_id) REFERENCES restaurants (id)
+)
+
+
+2025-10-22 10:05:10,121 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ()
+2025-10-22 10:05:10,123 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_data_quality_metrics_restaurant_id ON data_quality_metrics (restaurant_id)
+2025-10-22 10:05:10,123 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,125 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-22 10:05:10,125 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,127 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_data_quality_metrics_id ON data_quality_metrics (id)
+2025-10-22 10:05:10,127 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ()
+2025-10-22 10:05:10,128 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,128 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,129 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,129 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,129 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,129 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,129 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,129 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:10,135 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:10,138 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants) AS anon_1
+2025-10-22 10:05:10,138 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ()
+2025-10-22 10:05:10,141 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT DISTINCT concept_classifications.id AS concept_classifications_id, concept_classifications.restaurant_id AS concept_classifications_restaurant_id, concept_classifications.primary_concept AS concept_classifications_primary_concept, concept_classifications.secondary_concepts AS concept_classifications_secondary_concepts, concept_classifications.confidence AS concept_classifications_confidence, concept_classifications.ai_confidence AS concept_classifications_ai_confidence, concept_classifications.source AS concept_classifications_source, concept_classifications.web_data_sources AS concept_classifications_web_data_sources, concept_classifications.keywords_found AS concept_classifications_keywords_found, concept_classifications.price_range AS concept_classifications_price_range, concept_classifications.ambiance_indicators AS concept_classifications_ambiance_indicators, concept_classifications.classified_at AS concept_classifications_classified_at, concept_classifications.last_updated AS concept_classifications_last_updated 
+FROM concept_classifications) AS anon_1
+2025-10-22 10:05:10,141 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] ()
+2025-10-22 10:05:10,143 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT DISTINCT population_data.id AS population_data_id, population_data.restaurant_id AS population_data_restaurant_id, population_data.population_1_mile AS population_data_population_1_mile, population_data.population_3_mile AS population_data_population_3_mile, population_data.population_5_mile AS population_data_population_5_mile, population_data.population_10_mile AS population_data_population_10_mile, population_data.drinking_age_1_mile AS population_data_drinking_age_1_mile, population_data.drinking_age_3_mile AS population_data_drinking_age_3_mile, population_data.drinking_age_5_mile AS population_data_drinking_age_5_mile, population_data.drinking_age_10_mile AS population_data_drinking_age_10_mile, population_data.median_income_1_mile AS population_data_median_income_1_mile, population_data.median_age_1_mile AS population_data_median_age_1_mile, population_data.average_household_size_1_mile AS population_data_average_household_size_1_mile, population_data.source AS population_data_source, population_data.confidence AS population_data_confidence, population_data.census_data_available AS population_data_census_data_available, population_data.analyzed_at AS population_data_analyzed_at, population_data.last_updated AS population_data_last_updated 
+FROM population_data) AS anon_1
+2025-10-22 10:05:10,143 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ()
+2025-10-22 10:05:10,144 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT DISTINCT square_footage_data.id AS square_footage_data_id, square_footage_data.restaurant_id AS square_footage_data_restaurant_id, square_footage_data.square_footage AS square_footage_data_square_footage, square_footage_data.source AS square_footage_data_source, square_footage_data.confidence AS square_footage_data_confidence, square_footage_data.property_details AS square_footage_data_property_details, square_footage_data.source_url AS square_footage_data_source_url, square_footage_data.scraped_at AS square_footage_data_scraped_at, square_footage_data.last_updated AS square_footage_data_last_updated 
+FROM square_footage_data) AS anon_1
+2025-10-22 10:05:10,144 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ()
+2025-10-22 10:05:10,146 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT enrichment_jobs.id AS enrichment_jobs_id, enrichment_jobs.restaurant_id AS enrichment_jobs_restaurant_id, enrichment_jobs.job_type AS enrichment_jobs_job_type, enrichment_jobs.status AS enrichment_jobs_status, enrichment_jobs.progress AS enrichment_jobs_progress, enrichment_jobs.started_at AS enrichment_jobs_started_at, enrichment_jobs.completed_at AS enrichment_jobs_completed_at, enrichment_jobs.error_message AS enrichment_jobs_error_message, enrichment_jobs.job_config AS enrichment_jobs_job_config, enrichment_jobs.results_summary AS enrichment_jobs_results_summary 
+FROM enrichment_jobs 
+WHERE enrichment_jobs.status IN (?, ?)) AS anon_1
+2025-10-22 10:05:10,146 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('pending', 'running')
+2025-10-22 10:05:10,147 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT enrichment_jobs.id AS enrichment_jobs_id, enrichment_jobs.restaurant_id AS enrichment_jobs_restaurant_id, enrichment_jobs.job_type AS enrichment_jobs_job_type, enrichment_jobs.status AS enrichment_jobs_status, enrichment_jobs.progress AS enrichment_jobs_progress, enrichment_jobs.started_at AS enrichment_jobs_started_at, enrichment_jobs.completed_at AS enrichment_jobs_completed_at, enrichment_jobs.error_message AS enrichment_jobs_error_message, enrichment_jobs.job_config AS enrichment_jobs_job_config, enrichment_jobs.results_summary AS enrichment_jobs_results_summary 
+FROM enrichment_jobs 
+WHERE enrichment_jobs.status = ?) AS anon_1
+2025-10-22 10:05:10,147 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] ('completed',)
+2025-10-22 10:05:10,147 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT enrichment_jobs.id AS enrichment_jobs_id, enrichment_jobs.restaurant_id AS enrichment_jobs_restaurant_id, enrichment_jobs.job_type AS enrichment_jobs_job_type, enrichment_jobs.status AS enrichment_jobs_status, enrichment_jobs.progress AS enrichment_jobs_progress, enrichment_jobs.started_at AS enrichment_jobs_started_at, enrichment_jobs.completed_at AS enrichment_jobs_completed_at, enrichment_jobs.error_message AS enrichment_jobs_error_message, enrichment_jobs.job_config AS enrichment_jobs_job_config, enrichment_jobs.results_summary AS enrichment_jobs_results_summary 
+FROM enrichment_jobs 
+WHERE enrichment_jobs.status = ?) AS anon_1
+2025-10-22 10:05:10,147 - sqlalchemy.engine.Engine - INFO - [cached since 0.0005652s ago] ('failed',)
+2025-10-22 10:05:10,147 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:10,148 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:10,148 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-10-22 10:05:10,148 - sqlalchemy.engine.Engine - INFO - [generated in 0.00007s] ()
+2025-10-22 10:05:10,148 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:10,148 - __main__ - ERROR - Error getting status: 'charmap' codec can't encode character '\u2705' in position 15: character maps to <undefined>
+2025-10-22 10:05:31,904 - tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-22 10:05:31,904 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:31,904 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-22 10:05:31,904 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:31,906 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:31,906 - tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,907 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:31,915 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:31,918 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants) AS anon_1
+2025-10-22 10:05:31,918 - sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] ()
+2025-10-22 10:05:31,920 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT DISTINCT concept_classifications.id AS concept_classifications_id, concept_classifications.restaurant_id AS concept_classifications_restaurant_id, concept_classifications.primary_concept AS concept_classifications_primary_concept, concept_classifications.secondary_concepts AS concept_classifications_secondary_concepts, concept_classifications.confidence AS concept_classifications_confidence, concept_classifications.ai_confidence AS concept_classifications_ai_confidence, concept_classifications.source AS concept_classifications_source, concept_classifications.web_data_sources AS concept_classifications_web_data_sources, concept_classifications.keywords_found AS concept_classifications_keywords_found, concept_classifications.price_range AS concept_classifications_price_range, concept_classifications.ambiance_indicators AS concept_classifications_ambiance_indicators, concept_classifications.classified_at AS concept_classifications_classified_at, concept_classifications.last_updated AS concept_classifications_last_updated 
+FROM concept_classifications) AS anon_1
+2025-10-22 10:05:31,920 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] ()
+2025-10-22 10:05:31,922 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT DISTINCT population_data.id AS population_data_id, population_data.restaurant_id AS population_data_restaurant_id, population_data.population_1_mile AS population_data_population_1_mile, population_data.population_3_mile AS population_data_population_3_mile, population_data.population_5_mile AS population_data_population_5_mile, population_data.population_10_mile AS population_data_population_10_mile, population_data.drinking_age_1_mile AS population_data_drinking_age_1_mile, population_data.drinking_age_3_mile AS population_data_drinking_age_3_mile, population_data.drinking_age_5_mile AS population_data_drinking_age_5_mile, population_data.drinking_age_10_mile AS population_data_drinking_age_10_mile, population_data.median_income_1_mile AS population_data_median_income_1_mile, population_data.median_age_1_mile AS population_data_median_age_1_mile, population_data.average_household_size_1_mile AS population_data_average_household_size_1_mile, population_data.source AS population_data_source, population_data.confidence AS population_data_confidence, population_data.census_data_available AS population_data_census_data_available, population_data.analyzed_at AS population_data_analyzed_at, population_data.last_updated AS population_data_last_updated 
+FROM population_data) AS anon_1
+2025-10-22 10:05:31,922 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-22 10:05:31,924 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT DISTINCT square_footage_data.id AS square_footage_data_id, square_footage_data.restaurant_id AS square_footage_data_restaurant_id, square_footage_data.square_footage AS square_footage_data_square_footage, square_footage_data.source AS square_footage_data_source, square_footage_data.confidence AS square_footage_data_confidence, square_footage_data.property_details AS square_footage_data_property_details, square_footage_data.source_url AS square_footage_data_source_url, square_footage_data.scraped_at AS square_footage_data_scraped_at, square_footage_data.last_updated AS square_footage_data_last_updated 
+FROM square_footage_data) AS anon_1
+2025-10-22 10:05:31,924 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ()
+2025-10-22 10:05:31,926 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT enrichment_jobs.id AS enrichment_jobs_id, enrichment_jobs.restaurant_id AS enrichment_jobs_restaurant_id, enrichment_jobs.job_type AS enrichment_jobs_job_type, enrichment_jobs.status AS enrichment_jobs_status, enrichment_jobs.progress AS enrichment_jobs_progress, enrichment_jobs.started_at AS enrichment_jobs_started_at, enrichment_jobs.completed_at AS enrichment_jobs_completed_at, enrichment_jobs.error_message AS enrichment_jobs_error_message, enrichment_jobs.job_config AS enrichment_jobs_job_config, enrichment_jobs.results_summary AS enrichment_jobs_results_summary 
+FROM enrichment_jobs 
+WHERE enrichment_jobs.status IN (?, ?)) AS anon_1
+2025-10-22 10:05:31,926 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] ('pending', 'running')
+2025-10-22 10:05:31,927 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT enrichment_jobs.id AS enrichment_jobs_id, enrichment_jobs.restaurant_id AS enrichment_jobs_restaurant_id, enrichment_jobs.job_type AS enrichment_jobs_job_type, enrichment_jobs.status AS enrichment_jobs_status, enrichment_jobs.progress AS enrichment_jobs_progress, enrichment_jobs.started_at AS enrichment_jobs_started_at, enrichment_jobs.completed_at AS enrichment_jobs_completed_at, enrichment_jobs.error_message AS enrichment_jobs_error_message, enrichment_jobs.job_config AS enrichment_jobs_job_config, enrichment_jobs.results_summary AS enrichment_jobs_results_summary 
+FROM enrichment_jobs 
+WHERE enrichment_jobs.status = ?) AS anon_1
+2025-10-22 10:05:31,927 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('completed',)
+2025-10-22 10:05:31,927 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT enrichment_jobs.id AS enrichment_jobs_id, enrichment_jobs.restaurant_id AS enrichment_jobs_restaurant_id, enrichment_jobs.job_type AS enrichment_jobs_job_type, enrichment_jobs.status AS enrichment_jobs_status, enrichment_jobs.progress AS enrichment_jobs_progress, enrichment_jobs.started_at AS enrichment_jobs_started_at, enrichment_jobs.completed_at AS enrichment_jobs_completed_at, enrichment_jobs.error_message AS enrichment_jobs_error_message, enrichment_jobs.job_config AS enrichment_jobs_job_config, enrichment_jobs.results_summary AS enrichment_jobs_results_summary 
+FROM enrichment_jobs 
+WHERE enrichment_jobs.status = ?) AS anon_1
+2025-10-22 10:05:31,928 - sqlalchemy.engine.Engine - INFO - [cached since 0.0006252s ago] ('failed',)
+2025-10-22 10:05:31,928 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:31,928 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:31,928 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-10-22 10:05:31,928 - sqlalchemy.engine.Engine - INFO - [generated in 0.00007s] ()
+2025-10-22 10:05:31,928 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:46,186 - tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-22 10:05:46,186 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-22 10:05:46,186 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-22 10:05:46,186 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:46,187 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-22 10:05:46,188 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:46,188 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-22 10:05:46,188 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-22 10:05:46,188 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type): 'Engine' object has no attribute 'execute'
+2025-10-22 10:05:46,188 - tabc_scrape.storage.database - ERROR - Error creating index CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score): 'Engine' object has no attribute 'execute'

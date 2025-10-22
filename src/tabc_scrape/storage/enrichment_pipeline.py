@@ -9,7 +9,6 @@ from dataclasses import dataclass
 import asyncio
 from datetime import datetime
 
-from ..data.api_client import TexasComptrollerAPI
 from ..scraping.square_footage import SquareFootageScraper
 from ..scraping.concept_classifier import EnhancedRestaurantConceptClassifier
 from ..analysis.population import PopulationAnalyzer
@@ -45,11 +44,26 @@ class DataEnrichmentPipeline:
     def __init__(self, database_manager: DatabaseManager):
         self.db = database_manager
 
-        # Initialize all data collection components
-        self.api_client = TexasComptrollerAPI()
+        # Initialize all data collection components (lazy loading to avoid circular imports)
+        self._api_client = None
         self.square_footage_scraper = SquareFootageScraper()
         self.concept_classifier = EnhancedRestaurantConceptClassifier()
         self.population_analyzer = PopulationAnalyzer()
+
+        # Pipeline configuration
+        self.batch_size = 10
+        self.max_concurrent_jobs = 3
+        self.enable_square_footage_scraping = True
+        self.enable_concept_classification = True
+        self.enable_population_analysis = True
+
+    @property
+    def api_client(self):
+        """Lazy load API client to avoid circular imports"""
+        if self._api_client is None:
+            from ..data.api_client import TexasComptrollerAPI
+            self._api_client = TexasComptrollerAPI()
+        return self._api_client
 
         # Pipeline configuration
         self.batch_size = 10
