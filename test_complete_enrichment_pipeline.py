@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 import requests
 import json
 import time
+import asyncio
 from tabc_scrape.scraping.square_footage import SquareFootageScraper
 from tabc_scrape.analysis.population import PopulationAnalyzer
 import logging
@@ -55,7 +56,7 @@ def fetch_real_restaurant_data(limit=15):
         print(f"Error fetching restaurant data: {e}")
         return []
 
-def test_square_footage_with_real_data(restaurants):
+async def test_square_footage_with_real_data(restaurants):
     """Test square footage scraping with real restaurant data"""
     print("\nTesting Square Footage Scraping with Real Data...")
 
@@ -75,7 +76,7 @@ def test_square_footage_with_real_data(restaurants):
         county = restaurant.get('location_county', '')
 
         try:
-            result = scraper.scrape_square_footage(restaurant_name, full_address, county)
+            result = await scraper.scrape_square_footage(restaurant_name, full_address, county)
 
             print(f"   📏 Square Footage: {result.square_footage or 'Not found'}")
             print(f"   🔍 Source: {result.source}")
@@ -88,7 +89,8 @@ def test_square_footage_with_real_data(restaurants):
 
         except Exception as e:
             print(f"   ❌ Error: {e}")
-            result = scraper.SquareFootageResult(
+            from tabc_scrape.scraping.square_footage import SquareFootageResult
+            result = SquareFootageResult(
                 restaurant_name=restaurant_name,
                 address=full_address,
                 square_footage=None,
@@ -100,11 +102,11 @@ def test_square_footage_with_real_data(restaurants):
 
         # Small delay between requests
         if i < len(test_restaurants):
-            time.sleep(1)
+            await asyncio.sleep(1)
 
     return results
 
-def test_population_analysis_with_real_data(restaurants):
+async def test_population_analysis_with_real_data(restaurants):
     """Test population analysis with real restaurant data"""
     print("\nTesting Population Analysis with Real Data...")
 
@@ -122,7 +124,7 @@ def test_population_analysis_with_real_data(restaurants):
         full_address = f"{restaurant['location_address']}, {restaurant['location_city']}, {restaurant['location_state']} {restaurant['location_zip']}"
 
         try:
-            result = analyzer.analyze_location(restaurant['location_name'], full_address)
+            result = await analyzer.analyze_location(restaurant['location_name'], full_address)
 
             print(f"   🌍 Coordinates: {result.latitude:.4f}, {result.longitude:.4f}")
             print(f"   👥 1-mile population: {result.population_1_mile:,}")
@@ -139,7 +141,7 @@ def test_population_analysis_with_real_data(restaurants):
 
         # Delay between geocoding requests
         if i < len(test_restaurants):
-            time.sleep(1.5)
+            await asyncio.sleep(1.5)
 
     return results
 
@@ -239,7 +241,7 @@ def show_system_summary(restaurants, sqft_results, pop_results):
         print("     ✓ Population demographics for market analysis")
         print("     ✓ Revenue per square foot calculations")
         print("     ✓ Drinking age population for alcohol-related businesses")
-def main():
+async def main():
     """Main integration test function"""
     print("COMPLETE RESTAURANT DATA ENRICHMENT PIPELINE TEST")
     print("Testing with Real Texas Comptroller Data")
@@ -254,10 +256,10 @@ def main():
             return
 
         # Step 2: Test square footage scraping
-        sqft_results = test_square_footage_with_real_data(restaurants)
+        sqft_results = await test_square_footage_with_real_data(restaurants)
 
         # Step 3: Test population analysis
-        pop_results = test_population_analysis_with_real_data(restaurants)
+        pop_results = await test_population_analysis_with_real_data(restaurants)
 
         # Step 4: Show comprehensive results
         show_comprehensive_results(restaurants, sqft_results, pop_results)
@@ -284,4 +286,4 @@ def main():
         traceback.print_exc()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

@@ -55,6 +55,12 @@ class SquareFootageScraper:
             r'building\s+size[:\s]+(\d{1,3}(?:,\d{3})*)',
             r'property\s+size[:\s]+(\d{1,3}(?:,\d{3})*)',
             r'restaurant\s+size[:\s]+(\d{1,3}(?:,\d{3})*)',
+            r'total\s+area[:\s]+(\d{1,3}(?:,\d{3})*)',
+            r'floor\s+area[:\s]+(\d{1,3}(?:,\d{3})*)',
+            r'leasable\s+area[:\s]+(\d{1,3}(?:,\d{3})*)',
+            r'(\d{1,3}(?:,\d{3})*)\s*(?:sq\s+ft|square\s+feet)',
+            r'building\s+area[:\s]+(\d{1,3}(?:,\d{3})*)',
+            r'(\d{1,3}(?:,\d{3})*)\s*(?:square\s+feet|sqft|sf)',
         ]
 
         self.compiled_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in self.sqft_patterns]
@@ -115,7 +121,7 @@ class SquareFootageScraper:
             logger.error(f"Error searching Google: {e}")
             return []
 
-    def _scrape_property_appraiser(self, county: str, address: str) -> Optional[int]:
+    async def _scrape_property_appraiser(self, county: str, address: str) -> Optional[int]:
         """Scrape county property appraiser websites"""
         # Common Texas county property appraiser URLs
         county_urls = {
@@ -124,6 +130,16 @@ class SquareFootageScraper:
             'tarrant': 'https://www.tad.org/search/',
             'travis': 'https://www.traviscad.org/property-search/',
             'collin': 'https://www.collincad.org/property-search/',
+            'bexar': 'https://www.bcad.org/search/',
+            'el paso': 'https://www.epcad.org/search/',
+            'hidalgo': 'https://www.hidalgocad.org/search/',
+            'fort bend': 'https://www.fbcad.org/search/',
+            'montgomery': 'https://www.mcad-tx.org/search/',
+            'williamson': 'https://www.wcad.org/search/',
+            'galveston': 'https://www.galvestoncad.org/search/',
+            'denton': 'https://www.dentoncad.com/search/',
+            'cameron': 'https://www.cameroncad.org/search/',
+            'nuevo': 'https://www.nuecescad.org/search/',
         }
 
         base_url = county_urls.get(county.lower())
@@ -136,32 +152,36 @@ class SquareFootageScraper:
             search_query = f"{address} restaurant"
             search_url = f"{base_url}?q={quote(search_query)}"
 
-            response = self.session.get(search_url, timeout=15, verify=True)
-            if response.status_code == 200:
-                sqft = self._extract_square_footage_from_text(response.text)
-                if sqft:
-                    return sqft
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=15)) as response:
+                    if response.status == 200:
+                        text = await response.text()
+                        sqft = self._extract_square_footage_from_text(text)
+                        if sqft:
+                            return sqft
 
         except Exception as e:
             logger.error(f"Error scraping {county} property records: {e}")
 
         return None
 
-    def _scrape_restaurant_websites(self, restaurant_name: str, address: str) -> Optional[int]:
+    async def _scrape_restaurant_websites(self, restaurant_name: str, address: str) -> Optional[int]:
         """Scrape restaurant's own website for square footage info"""
         try:
             # Search for restaurant website
-            query = f'"{restaurant_name}" {address} official site'
-            urls = self._search_google(query, num_results=3)
+            query = f'"{restaurant_name}" {address} official site OR website'
+            urls = await self._search_google(query, num_results=5)
 
             for url in urls:
-                if any(domain in url.lower() for domain in ['.com', '.net', '.org']):
+                if any(domain in url.lower() for domain in ['.com', '.net', '.org', '.biz']):
                     try:
-                        response = self.session.get(url, timeout=10, verify=True)
-                        if response.status_code == 200:
-                            sqft = self._extract_square_footage_from_text(response.text)
-                            if sqft:
-                                return sqft
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                                if response.status == 200:
+                                    text = await response.text()
+                                    sqft = self._extract_square_footage_from_text(text)
+                                    if sqft:
+                                        return sqft
                     except:
                         continue
 
@@ -170,21 +190,23 @@ class SquareFootageScraper:
 
         return None
 
-    def _scrape_commercial_real_estate(self, restaurant_name: str, address: str) -> Optional[int]:
+    async def _scrape_commercial_real_estate(self, restaurant_name: str, address: str) -> Optional[int]:
         """Scrape commercial real estate websites"""
         try:
             # Search for restaurant in commercial listings
-            query = f'"{restaurant_name}" {address} commercial real estate'
-            urls = self._search_google(query, num_results=3)
+            query = f'"{restaurant_name}" {address} commercial real estate OR for lease OR for sale'
+            urls = await self._search_google(query, num_results=5)
 
             for url in urls:
-                if any(site in url.lower() for site in ['loopnet.com', 'crexi.com', 'showcase.com']):
+                if any(site in url.lower() for site in ['loopnet.com', 'crexi.com', 'showcase.com', 'costar.com', 'properties.com']):
                     try:
-                        response = self.session.get(url, timeout=10, verify=True)
-                        if response.status_code == 200:
-                            sqft = self._extract_square_footage_from_text(response.text)
-                            if sqft:
-                                return sqft
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                                if response.status == 200:
+                                    text = await response.text()
+                                    sqft = self._extract_square_footage_from_text(text)
+                                    if sqft:
+                                        return sqft
                     except:
                         continue
 
@@ -221,7 +243,7 @@ class SquareFootageScraper:
         # Try 1: County Property Appraiser Records
         if county:
             sources_tried.append("county_records")
-            square_footage = self._scrape_property_appraiser(county, address)
+            square_footage = await self._scrape_property_appraiser(county, address)
             if square_footage:
                 source = "county_records"
                 confidence = 0.9
@@ -230,7 +252,7 @@ class SquareFootageScraper:
         # Try 2: Restaurant Website
         if not square_footage:
             sources_tried.append("restaurant_website")
-            square_footage = self._scrape_restaurant_websites(restaurant_name, address)
+            square_footage = await self._scrape_restaurant_websites(restaurant_name, address)
             if square_footage:
                 source = "restaurant_website"
                 confidence = 0.7
@@ -239,7 +261,7 @@ class SquareFootageScraper:
         # Try 3: Commercial Real Estate Listings
         if not square_footage:
             sources_tried.append("commercial_real_estate")
-            square_footage = self._scrape_commercial_real_estate(restaurant_name, address)
+            square_footage = await self._scrape_commercial_real_estate(restaurant_name, address)
             if square_footage:
                 source = "commercial_real_estate"
                 confidence = 0.8
@@ -248,20 +270,22 @@ class SquareFootageScraper:
         # Try 4: Google Search for permits/records
         if not square_footage:
             sources_tried.append("google_search")
-            query = f'"{restaurant_name}" {address} square footage OR building size OR property records'
-            urls = self._search_google(query, num_results=5)
+            query = f'"{restaurant_name}" {address} square footage OR building size OR property records OR commercial listing'
+            urls = await self._search_google(query, num_results=10)  # Increase num_results for better coverage
 
             for url in urls:
                 try:
-                    response = self.session.get(url, timeout=10, verify=True)  # Enforce HTTPS verification
-                    if response.status_code == 200:
-                        sqft = self._extract_square_footage_from_text(response.text)
-                        if sqft:
-                            square_footage = sqft
-                            source = "google_search"
-                            confidence = 0.5
-                            logger.info(f"Found square footage from Google search: {square_footage}")
-                            break
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                            if response.status == 200:
+                                text = await response.text()
+                                sqft = self._extract_square_footage_from_text(text)
+                                if sqft:
+                                    square_footage = sqft
+                                    source = "google_search"
+                                    confidence = 0.5
+                                    logger.info(f"Found square footage from Google search: {square_footage}")
+                                    break
                 except:
                     continue
 
@@ -293,7 +317,7 @@ class SquareFootageScraper:
         logger.info(f"Square footage scraping result: {square_footage} sqft from {source} (confidence: {confidence:.2f})")
         return result
 
-    def scrape_multiple_restaurants(self, restaurants: List[Dict[str, Any]]) -> Dict[str, SquareFootageResult]:
+    async def scrape_multiple_restaurants(self, restaurants: List[Dict[str, Any]]) -> Dict[str, SquareFootageResult]:
         """
         Scrape square footage for multiple restaurants
 
@@ -313,10 +337,10 @@ class SquareFootageScraper:
 
             # Add small delay between requests to be respectful
             if results:  # Don't delay the first request
-                time.sleep(1)
+                await asyncio.sleep(1)
 
             try:
-                result = self.scrape_square_footage(name, address, county)
+                result = await self.scrape_square_footage(name, address, county)
                 results[restaurant_id] = result
             except Exception as e:
                 logger.error(f"Error scraping {name}: {e}")

@@ -9,12 +9,14 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from tabc_scrape.scraping.square_footage import SquareFootageScraper
 import logging
+import pytest
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def test_square_footage_scraping():
+@pytest.mark.asyncio
+async def test_square_footage_scraping():
     """Test the square footage scraping functionality"""
     print("=== Testing Square Footage Scraper ===\n")
 
@@ -52,7 +54,7 @@ def test_square_footage_scraping():
         print(f"County: {restaurant['location_county']}")
 
         try:
-            result = scraper.scrape_square_footage(
+            result = await scraper.scrape_square_footage(
                 restaurant['location_name'],
                 restaurant['full_address'],
                 restaurant['location_county']
@@ -71,7 +73,7 @@ def test_square_footage_scraping():
     # Test multiple restaurant scraping
     print("\nTesting batch scraping...")
     try:
-        results = scraper.scrape_multiple_restaurants(test_restaurants)
+        results = await scraper.scrape_multiple_restaurants(test_restaurants)
 
         # Print statistics
         stats = scraper.get_scraping_stats(results)
@@ -115,5 +117,6 @@ def test_text_extraction():
         print(f"  Test {i}: '{text}' -> {sqft} sq ft")
 
 if __name__ == "__main__":
-    test_square_footage_scraping()
+    import asyncio
+    asyncio.run(test_square_footage_scraping())
     test_text_extraction()

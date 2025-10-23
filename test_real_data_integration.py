@@ -7,8 +7,9 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
+import asyncio
 from tabc_scrape.data.api_client import TexasComptrollerAPI
-from tabc_scrape.scraping.square_footage import SquareFootageScraper
+from tabc_scrape.scraping.square_footage import SquareFootageScraper, SquareFootageResult
 from tabc_scrape.storage.database import DatabaseManager
 import logging
 
@@ -16,7 +17,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def test_real_restaurant_scraping():
+async def test_real_restaurant_scraping():
     """Test square footage scraping with real restaurant data"""
     print("=== Testing Square Footage Scraper with Real Restaurant Data ===\n")
 
@@ -27,7 +28,7 @@ def test_real_restaurant_scraping():
 
     # Test API connection first
     print("1. Testing API connection...")
-    if not api_client.test_connection():
+    if not await api_client.test_connection():
         print("API connection failed")
         return
     print("✅ API connection successful")
@@ -35,7 +36,7 @@ def test_real_restaurant_scraping():
     # Fetch real restaurant data
     print("\n2. Fetching real restaurant data...")
     try:
-        restaurants_df = api_client.get_restaurants_dataframe(limit=20)  # Start with 20 restaurants
+        restaurants_df = await api_client.get_restaurants_dataframe(limit=20)  # Start with 20 restaurants
 
         if restaurants_df.empty:
             print("No restaurant data retrieved")
@@ -82,7 +83,7 @@ def test_real_restaurant_scraping():
         print(f"  County: {restaurant['location_county']}")
 
         try:
-            result = scraper.scrape_square_footage(
+            result = await scraper.scrape_square_footage(
                 restaurant['location_name'],
                 restaurant['full_address'],
                 restaurant['location_county']
@@ -99,7 +100,7 @@ def test_real_restaurant_scraping():
 
         except Exception as e:
             print(f"  Error: {e}")
-            result = scraper.SquareFootageResult(
+            result = SquareFootageResult(
                 restaurant_name=restaurant['location_name'],
                 address=restaurant['full_address'],
                 square_footage=None,
@@ -174,10 +175,10 @@ def test_real_restaurant_scraping():
     print("  • Add more county property appraiser websites")
     print("  • Consider using proxy rotation for large-scale scraping")
     print("  • Integrate with commercial real estate APIs for better coverage")
-def main():
+async def main():
     """Main function"""
     try:
-        test_real_restaurant_scraping()
+        await test_real_restaurant_scraping()
     except KeyboardInterrupt:
         print("\n\nTest interrupted by user")
     except Exception as e:
@@ -186,4 +187,4 @@ def main():
         traceback.print_exc()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
