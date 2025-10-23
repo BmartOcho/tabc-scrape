@@ -131,8 +131,8 @@ def enrich(limit, batch_size, database_url, skip_square_footage, skip_concept_cl
         if skip_population_analysis:
             pipeline.enable_population_analysis = False
 
-        # Update batch size
-        pipeline.batch_size = batch_size
+        # Update batch size (reduced for rate limiting)
+        pipeline.batch_size = min(batch_size, 2)  # Cap at 2 for square footage scraping
 
         click.echo("[DATA] Configuration:")
         click.echo(f"   • Batch size: {pipeline.batch_size}")

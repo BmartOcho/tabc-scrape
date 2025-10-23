@@ -92,16 +92,42 @@ class SquareFootageScraper:
         return None
 
     async def _search_google(self, query: str, num_results: int = 5) -> List[str]:
-        """Search Google and return top result URLs"""
+        """Search Google and return top result URLs with rate limiting"""
         try:
             search_url = f"https://www.google.com/search?q={quote(query)}&num={num_results}"
+
+            # Add delay to respect rate limits
+            await asyncio.sleep(5)  # 5 second delay between requests
+
             async with aiohttp.ClientSession() as session:
-                async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                    if response.status != 200:
+                async with session.get(
+                    search_url,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                ) as response:
+
+                    if response.status == 429:
+                        # Rate limited - wait longer and retry once
+                        logger.warning("Rate limited by Google, waiting 60 seconds...")
+                        await asyncio.sleep(60)
+                        async with session.get(
+                            search_url,
+                            timeout=aiohttp.ClientTimeout(total=15),
+                            headers={
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                            }
+                        ) as retry_response:
+                            if retry_response.status != 200:
+                                logger.warning(f"Google search failed with status {retry_response.status}")
+                                return []
+                            soup = BeautifulSoup(await retry_response.text(), 'html.parser')
+                    elif response.status != 200:
                         logger.warning(f"Google search failed with status {response.status}")
                         return []
-
-                    soup = BeautifulSoup(await response.text(), 'html.parser')
+                    else:
+                        soup = BeautifulSoup(await response.text(), 'html.parser')
 
                     # Extract URLs from search results
                     urls = []
@@ -170,7 +196,7 @@ class SquareFootageScraper:
         try:
             # Search for restaurant website
             query = f'"{restaurant_name}" {address} official site OR website'
-            urls = await self._search_google(query, num_results=5)
+            urls = await self._search_google(query, num_results=3)
 
             for url in urls:
                 if any(domain in url.lower() for domain in ['.com', '.net', '.org', '.biz']):
@@ -194,8 +220,8 @@ class SquareFootageScraper:
         """Scrape commercial real estate websites"""
         try:
             # Search for restaurant in commercial listings
-            query = f'"{restaurant_name}" {address} commercial real estate OR for lease OR for sale'
-            urls = await self._search_google(query, num_results=5)
+            query = f'"{restaurant_name}" {address} commercial real estate'
+            urls = await self._search_google(query, num_results=3)
 
             for url in urls:
                 if any(site in url.lower() for site in ['loopnet.com', 'crexi.com', 'showcase.com', 'costar.com', 'properties.com']):
@@ -270,8 +296,8 @@ class SquareFootageScraper:
         # Try 4: Google Search for permits/records
         if not square_footage:
             sources_tried.append("google_search")
-            query = f'"{restaurant_name}" {address} square footage OR building size OR property records OR commercial listing'
-            urls = await self._search_google(query, num_results=10)  # Increase num_results for better coverage
+            query = f'"{restaurant_name}" {address} square footage OR building size OR property records'
+            urls = await self._search_google(query, num_results=3)  # Reduce to avoid rate limits
 
             for url in urls:
                 try:

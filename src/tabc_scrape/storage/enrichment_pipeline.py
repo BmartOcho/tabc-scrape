@@ -65,13 +65,6 @@ class DataEnrichmentPipeline:
             self._api_client = TexasComptrollerAPI()
         return self._api_client
 
-        # Pipeline configuration
-        self.batch_size = 10
-        self.max_concurrent_jobs = 3
-        self.enable_square_footage_scraping = True
-        self.enable_concept_classification = True
-        self.enable_population_analysis = True
-
     async def enrich_single_restaurant(self, restaurant_id: str) -> EnrichmentResult:
         """
         Enrich a single restaurant with all available data
