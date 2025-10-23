@@ -118,7 +118,19 @@ class DataEnrichmentPipeline:
                     )
 
                     if classification.confidence > 0.3:  # Minimum confidence threshold
-                        self.db.store_concept_classification(restaurant_id, classification.__dict__)
+                        # Filter to only include fields that match the database model
+                        model_fields = {
+                            'primary_concept': classification.primary_concept,
+                            'secondary_concepts': classification.secondary_concepts,
+                            'confidence': classification.confidence,
+                            'ai_confidence': classification.ai_confidence,
+                            'source': classification.source,
+                            'web_data_sources': classification.web_data_sources,
+                            'keywords_found': classification.keywords_found,
+                            'price_range': classification.price_range,
+                            'ambiance_indicators': classification.ambiance_indicators
+                        }
+                        self.db.store_concept_classification(restaurant_id, model_fields)
                         data_collected['concept_classification'] = True
                         logger.info(f"Concept classification completed: {classification.primary_concept}")
                     else:
