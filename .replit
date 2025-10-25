@@ -1,0 +1,9 @@
+run = "python replit_app.py"
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "python replit_app.py"]
+deploymentTarget = "cloudrun"

@@ -114,7 +114,7 @@ class TexasComptrollerAPI:
                 logger.info(f"Making request to {url} (attempt {attempt + 1})")
                 logger.info(f"Request headers: {list(headers.keys())}")
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=self.timeout)) as response:
+                    async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=self.timeout), ssl=False) as response:
                         if response.status == 200:
                             response_data = await response.json()
                             logger.info(f"API request successful for {url}, status: {response.status}")
@@ -347,7 +347,7 @@ class TexasComptrollerAPI:
             # Test with a simple data request instead of count endpoint
             test_url = f"{self.base_url}?$top=1&$select=__id,taxpayer_number,taxpayer_name"
             async with aiohttp.ClientSession() as session:
-                async with session.get(test_url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                async with session.get(test_url, timeout=aiohttp.ClientTimeout(total=10), ssl=False) as response:
                     return response.status == 200
         except:
             return False

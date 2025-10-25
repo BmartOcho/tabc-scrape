@@ -17004,3 +17004,379 @@ FROM restaurants LEFT OUTER JOIN concept_classifications ON restaurants.id = con
 2025-10-23 09:23:22,041 - tabc_scrape.storage.database - INFO - Retrieved 5000 enriched restaurant records from database
 2025-10-23 09:23:22,041 - sqlalchemy.engine.Engine - INFO - COMMIT
 2025-10-23 09:23:22,122 - tabc_scrape.storage.database - INFO - Exported 5000 enriched restaurant records to src/dev_enriched_restaurants.csv
+2025-10-25 17:38:06,113 - src.tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-25 17:38:06,115 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,116 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-25 17:38:06,116 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:38:06,117 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-25 17:38:06,118 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:38:06,119 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-25 17:38:06,119 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:38:06,119 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-25 17:38:06,120 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:38:06,120 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-25 17:38:06,120 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:38:06,121 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-25 17:38:06,121 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:38:06,122 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,122 - src.tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-25 17:38:06,123 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,123 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 17:38:06,123 - sqlalchemy.engine.Engine - INFO - [generated in 0.00056s] ()
+2025-10-25 17:38:06,125 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,125 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 17:38:06,126 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,126 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 17:38:06,126 - sqlalchemy.engine.Engine - INFO - [generated in 0.00084s] ()
+2025-10-25 17:38:06,127 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,127 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 17:38:06,127 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,128 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 17:38:06,128 - sqlalchemy.engine.Engine - INFO - [generated in 0.00050s] ()
+2025-10-25 17:38:06,128 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,128 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 17:38:06,129 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,129 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 17:38:06,129 - sqlalchemy.engine.Engine - INFO - [generated in 0.00048s] ()
+2025-10-25 17:38:06,130 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,130 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 17:38:06,130 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,130 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 17:38:06,131 - sqlalchemy.engine.Engine - INFO - [generated in 0.00056s] ()
+2025-10-25 17:38:06,131 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,131 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 17:38:06,132 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,132 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 17:38:06,132 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ()
+2025-10-25 17:38:06,132 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,132 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] ()
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,133 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 17:38:06,133 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ()
+2025-10-25 17:38:06,134 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,134 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 17:38:06,134 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,134 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 17:38:06,134 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] ()
+2025-10-25 17:38:06,134 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,134 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 17:38:06,135 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,135 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 17:38:06,135 - sqlalchemy.engine.Engine - INFO - [generated in 0.00029s] ()
+2025-10-25 17:38:06,135 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,135 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 17:38:06,136 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,136 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 17:38:06,136 - sqlalchemy.engine.Engine - INFO - [generated in 0.00034s] ()
+2025-10-25 17:38:06,136 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,136 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 17:38:06,137 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,137 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 17:38:06,137 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] ()
+2025-10-25 17:38:06,137 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,137 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 17:38:06,138 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,138 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 17:38:06,138 - sqlalchemy.engine.Engine - INFO - [generated in 0.00038s] ()
+2025-10-25 17:38:06,138 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,138 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - [generated in 0.00021s] ()
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,139 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 17:38:06,139 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ()
+2025-10-25 17:38:06,140 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,140 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 17:38:06,140 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,140 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 17:38:06,140 - sqlalchemy.engine.Engine - INFO - [generated in 0.00022s] ()
+2025-10-25 17:38:06,140 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,140 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 17:38:06,141 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:38:06,141 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 17:38:06,141 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] ()
+2025-10-25 17:38:06,141 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:38:06,141 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 17:57:10,544 - src.tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-25 17:57:10,547 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,547 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-25 17:57:10,547 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:57:10,548 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-25 17:57:10,549 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:57:10,549 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-25 17:57:10,549 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:57:10,550 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-25 17:57:10,550 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:57:10,551 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-25 17:57:10,551 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:57:10,551 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-25 17:57:10,551 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:57:10,552 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,552 - src.tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-25 17:57:10,552 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,553 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 17:57:10,553 - sqlalchemy.engine.Engine - INFO - [generated in 0.00047s] ()
+2025-10-25 17:57:10,553 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,553 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 17:57:10,553 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ()
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,554 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,554 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 17:57:10,554 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,555 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,555 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,555 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,556 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,556 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 17:57:10,556 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,557 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,557 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,557 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 17:57:10,558 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ()
+2025-10-25 17:57:10,558 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,558 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 17:57:10,558 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,558 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 17:57:10,558 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 17:57:10,558 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,558 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,559 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 17:57:10,559 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,560 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,560 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 17:57:10,560 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:57:10,561 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,561 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 17:57:10,561 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,561 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 17:57:10,561 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] ()
+2025-10-25 17:57:10,561 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,561 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 17:57:10,562 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:10,562 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 17:57:10,562 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 17:57:10,562 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:57:10,562 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - Fetching restaurant data from Texas Comptroller API
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - Fetching batch from: https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - API Authentication - Key ID present: False
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - API Authentication - Key Secret present: False
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - API Authentication - App Token present: False
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - WARNING - No API keys configured - requests may fail due to authentication
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - WARNING - No App Token configured - this may be required for Socrata API
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - Making request to https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts (attempt 1)
+2025-10-25 17:57:11,218 - src.tabc_scrape.data.api_client - INFO - Request headers: []
+2025-10-25 17:57:11,631 - src.tabc_scrape.data.api_client - INFO - API request successful for https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts, status: 200
+2025-10-25 17:57:11,631 - src.tabc_scrape.data.api_client - INFO - Response headers: {'Server': 'nginx', 'Date': 'Sat, 25 Oct 2025 22:57:11 GMT', 'Content-Type': 'application/json;odata.metadata=minimal', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'OData-Version': '4.0', 'Vary': 'Accept-Encoding', 'Content-Encoding': 'gzip', 'X-Socrata-Region': 'aws-us-east-1-fedramp-prod', 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains', 'X-Socrata-RequestId': 'f8cfa138dbe843053857476cfaa04113'}
+2025-10-25 17:57:11,631 - src.tabc_scrape.data.api_client - INFO - Response data keys: ['@odata.context', 'value', '@odata.nextLink']
+2025-10-25 17:57:11,631 - src.tabc_scrape.data.api_client - INFO - Number of records in response: 1000
+2025-10-25 17:57:11,634 - src.tabc_scrape.data.api_client - INFO - Cached response for https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts
+2025-10-25 17:57:11,634 - src.tabc_scrape.data.api_client - INFO - Fetched batch of 1000 records (offset: 0)
+2025-10-25 17:57:11,634 - src.tabc_scrape.data.api_client - INFO - Limiting batch to 5 records to reach limit
+2025-10-25 17:57:11,634 - src.tabc_scrape.data.api_client - INFO - Reached end of data or got empty batch
+2025-10-25 17:57:11,634 - src.tabc_scrape.data.api_client - INFO - Successfully fetched 5 restaurant records
+2025-10-25 17:57:11,645 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:57:11,648 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 17:57:11,648 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] ('row-hsta~8g63-pbsx', 1, 0)
+2025-10-25 17:57:11,649 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 17:57:11,650 - sqlalchemy.engine.Engine - INFO - [cached since 0.001575s ago] ('row-4uvi.mpbj.v5rr', 1, 0)
+2025-10-25 17:57:11,650 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 17:57:11,650 - sqlalchemy.engine.Engine - INFO - [cached since 0.002537s ago] ('row-e4y7-2xzz_2ekb', 1, 0)
+2025-10-25 17:57:11,651 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 17:57:11,651 - sqlalchemy.engine.Engine - INFO - [cached since 0.003401s ago] ('row-xyc3.7urd-uhbw', 1, 0)
+2025-10-25 17:57:11,652 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 17:57:11,652 - sqlalchemy.engine.Engine - INFO - [cached since 0.004246s ago] ('row-pxuz.47rg.mn6z', 1, 0)
+2025-10-25 17:57:11,653 - src.tabc_scrape.storage.database - INFO - Successfully stored/updated 5 restaurant records
+2025-10-25 17:57:11,654 - sqlalchemy.engine.Engine - INFO - UPDATE restaurants SET location_county=?, last_updated=CURRENT_TIMESTAMP WHERE restaurants.id = ?
+2025-10-25 17:57:11,655 - sqlalchemy.engine.Engine - INFO - [generated in 0.00023s] (61, 'row-4uvi.mpbj.v5rr')
+2025-10-25 17:57:11,656 - sqlalchemy.engine.Engine - INFO - UPDATE restaurants SET location_county=?, last_updated=CURRENT_TIMESTAMP WHERE restaurants.id = ?
+2025-10-25 17:57:11,656 - sqlalchemy.engine.Engine - INFO - [cached since 0.002053s ago] (178, 'row-e4y7-2xzz_2ekb')
+2025-10-25 17:57:11,656 - sqlalchemy.engine.Engine - INFO - UPDATE restaurants SET location_county=?, last_updated=CURRENT_TIMESTAMP WHERE restaurants.id = ?
+2025-10-25 17:57:11,657 - sqlalchemy.engine.Engine - INFO - [cached since 0.002602s ago] (152, 'row-hsta~8g63-pbsx')
+2025-10-25 17:57:11,657 - sqlalchemy.engine.Engine - INFO - UPDATE restaurants SET location_county=?, last_updated=CURRENT_TIMESTAMP WHERE restaurants.id = ?
+2025-10-25 17:57:11,657 - sqlalchemy.engine.Engine - INFO - [cached since 0.002972s ago] (45, 'row-pxuz.47rg.mn6z')
+2025-10-25 17:57:11,657 - sqlalchemy.engine.Engine - INFO - UPDATE restaurants SET location_county=?, last_updated=CURRENT_TIMESTAMP WHERE restaurants.id = ?
+2025-10-25 17:57:11,657 - sqlalchemy.engine.Engine - INFO - [cached since 0.003342s ago] (108, 'row-xyc3.7urd-uhbw')
+2025-10-25 17:57:11,657 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,176 - src.tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-25 17:58:49,178 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,179 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-25 17:58:49,179 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:58:49,180 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-25 17:58:49,180 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:58:49,180 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-25 17:58:49,180 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:58:49,181 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-25 17:58:49,181 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:58:49,181 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-25 17:58:49,182 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:58:49,182 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-25 17:58:49,183 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 17:58:49,183 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,183 - src.tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-25 17:58:49,184 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,184 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 17:58:49,184 - sqlalchemy.engine.Engine - INFO - [generated in 0.00051s] ()
+2025-10-25 17:58:49,185 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,185 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 17:58:49,185 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,186 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 17:58:49,186 - sqlalchemy.engine.Engine - INFO - [generated in 0.00044s] ()
+2025-10-25 17:58:49,186 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,186 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 17:58:49,187 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,187 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 17:58:49,187 - sqlalchemy.engine.Engine - INFO - [generated in 0.00046s] ()
+2025-10-25 17:58:49,187 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,187 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 17:58:49,188 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,188 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 17:58:49,188 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] ()
+2025-10-25 17:58:49,188 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,188 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ()
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,189 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 17:58:49,189 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,190 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,190 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 17:58:49,190 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,191 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,191 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 17:58:49,191 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,192 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,192 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 17:58:49,192 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,193 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,193 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 17:58:49,193 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,195 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,195 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,195 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,195 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 17:58:49,196 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 17:58:49,196 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 17:58:49,196 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ()
+2025-10-25 17:58:49,196 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 17:58:49,196 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - Fetching restaurant data from Texas Comptroller API
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - Fetching batch from: https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - API Authentication - Key ID present: False
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - API Authentication - Key Secret present: False
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - API Authentication - App Token present: False
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - WARNING - No API keys configured - requests may fail due to authentication
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - WARNING - No App Token configured - this may be required for Socrata API
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - Making request to https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts (attempt 1)
+2025-10-25 17:58:49,688 - src.tabc_scrape.data.api_client - INFO - Request headers: []
+2025-10-25 17:58:50,064 - src.tabc_scrape.data.api_client - INFO - API request successful for https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts, status: 200
+2025-10-25 17:58:50,064 - src.tabc_scrape.data.api_client - INFO - Response headers: {'Server': 'nginx', 'Date': 'Sat, 25 Oct 2025 22:58:50 GMT', 'Content-Type': 'application/json;odata.metadata=minimal', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'OData-Version': '4.0', 'Vary': 'Accept-Encoding', 'Content-Encoding': 'gzip', 'X-Socrata-Region': 'aws-us-east-1-fedramp-prod', 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains', 'X-Socrata-RequestId': 'c176cc2b06b32af7cd36f8baf601c15f'}
+2025-10-25 17:58:50,064 - src.tabc_scrape.data.api_client - INFO - Response data keys: ['@odata.context', 'value', '@odata.nextLink']
+2025-10-25 17:58:50,064 - src.tabc_scrape.data.api_client - INFO - Number of records in response: 1000
+2025-10-25 17:58:50,066 - src.tabc_scrape.data.api_client - INFO - Cached response for https://data.texas.gov/api/odata/v4/naix-2893?$top=1000&$skip=0&$select=__id,taxpayer_number,taxpayer_name,taxpayer_address,taxpayer_city,taxpayer_state,taxpayer_zip,taxpayer_county,location_number,location_name,location_address,location_city,location_state,location_zip,location_county,tabc_permit_number,total_receipts
+2025-10-25 17:58:50,066 - src.tabc_scrape.data.api_client - INFO - Fetched batch of 1000 records (offset: 0)
+2025-10-25 17:58:50,067 - src.tabc_scrape.data.api_client - INFO - Already reached limit of -1 records
+2025-10-25 17:58:50,067 - src.tabc_scrape.data.api_client - INFO - Successfully fetched 0 restaurant records

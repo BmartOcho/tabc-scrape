@@ -2,12 +2,16 @@
 Web server for health monitoring and API endpoints
 """
 
+import asyncio
 import logging
 import time
+import subprocess
+import threading
 from flask import Flask, jsonify, request, Response
 from .config import config
 from .storage.database import DatabaseManager
 from .data.api_client import TexasComptrollerAPI
+from .workflow import WorkflowManager
 import pandas as pd
 import io
 from prometheus_client import Counter, Gauge, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
@@ -91,7 +95,7 @@ def system_status():
         api_client = TexasComptrollerAPI()
 
         db_ok = db_manager.test_connection()
-        api_ok = api_client.test_connection()
+        api_ok = asyncio.run(api_client.test_connection())
 
         stats = db_manager.get_enrichment_stats() if db_ok else {}
 
@@ -196,6 +200,205 @@ def get_restaurant_by_id(restaurant_id):
 
     except Exception as e:
         logger.error(f"Error in restaurant endpoint: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/')
+def dashboard():
+    """Main dashboard page"""
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>TABC Restaurant Data Pipeline</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; }
+            .card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+            .button {
+                background: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 5px;
+            }
+            .button:hover { background: #0056b3; }
+            .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+            .success { background: #d4edda; color: #155724; }
+            .error { background: #f8d7da; color: #721c24; }
+            .info { background: #d1ecf1; color: #0c5460; }
+        </style>
+    </head>
+    <body>
+        <h1>🍽️ TABC Restaurant Data Pipeline</h1>
+        
+        <div class="card">
+            <h2>System Status</h2>
+            <div id="status">Loading...</div>
+        </div>
+        
+        <div class="card">
+            <h2>Data Collection</h2>
+            <button class="button" onclick="fetchData()">Fetch Restaurant Data</button>
+            <button class="button" onclick="enrichData()">Enrich Data</button>
+            <button class="button" onclick="exportData()">Export Data</button>
+        </div>
+        
+        <div class="card">
+            <h2>Statistics</h2>
+            <div id="stats">Loading...</div>
+        </div>
+        
+        <div class="card">
+            <h2>Recent Data</h2>
+            <div id="recent-data">Loading...</div>
+        </div>
+        
+        <script>
+            async function loadStatus() {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('status');
+                statusDiv.innerHTML = `
+                    <div class="status ${data.database_connected ? 'success' : 'error'}">
+                        Database: ${data.database_connected ? '✓ Connected' : '✗ Disconnected'}
+                    </div>
+                    <div class="status ${data.api_connected ? 'success' : 'error'}">
+                        API: ${data.api_connected ? '✓ Connected' : '✗ Disconnected'}
+                    </div>
+                `;
+                
+                const statsDiv = document.getElementById('stats');
+                const stats = data.enrichment_stats;
+                statsDiv.innerHTML = `
+                    <p><strong>Total Restaurants:</strong> ${stats.total_restaurants || 0}</p>
+                    <p><strong>With Concept Classification:</strong> ${stats.restaurants_with_concept_classification || 0}</p>
+                    <p><strong>With Population Data:</strong> ${stats.restaurants_with_population_data || 0}</p>
+                    <p><strong>With Square Footage:</strong> ${stats.restaurants_with_square_footage || 0}</p>
+                `;
+            }
+            
+            async function loadRecentData() {
+                const response = await fetch('/api/enriched-data?limit=5');
+                const data = await response.json();
+                
+                const dataDiv = document.getElementById('recent-data');
+                if (Array.isArray(data) && data.length > 0) {
+                    dataDiv.innerHTML = '<table style="width:100%; border-collapse: collapse;">' +
+                        '<tr style="border-bottom: 2px solid #ddd;">' +
+                        '<th>Name</th><th>City</th><th>Concept</th><th>Receipts</th></tr>' +
+                        data.map(r => `
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td>${r.location_name || 'N/A'}</td>
+                                <td>${r.location_city || 'N/A'}</td>
+                                <td>${r.concept_primary || 'N/A'}</td>
+                                <td>$${(r.total_receipts || 0).toLocaleString()}</td>
+                            </tr>
+                        `).join('') +
+                        '</table>';
+                } else {
+                    dataDiv.innerHTML = '<p>No data available yet. Fetch some data to get started!</p>';
+                }
+            }
+            
+            async function fetchData() {
+                alert('Fetching data... This may take a few minutes.');
+                const response = await fetch('/api/trigger/fetch', { method: 'POST', body: JSON.stringify({ limit: 100 }), headers: { 'Content-Type': 'application/json' } });
+                const result = await response.json();
+                alert(result.message || result.error);
+                window.location.reload();
+            }
+            
+            async function enrichData() {
+                alert('Enriching data... This may take several minutes.');
+                const response = await fetch('/api/trigger/enrich', { method: 'POST', body: JSON.stringify({ limit: 10 }), headers: { 'Content-Type': 'application/json' } });
+                const result = await response.json();
+                alert(result.message || result.error);
+                window.location.reload();
+            }
+            
+            async function exportData() {
+                window.location.href = '/api/enriched-data/csv';
+            }
+            
+            // Load data on page load
+            loadStatus();
+            loadRecentData();
+            
+            // Refresh every 30 seconds
+            setInterval(() => {
+                loadStatus();
+                loadRecentData();
+            }, 30000);
+        </script>
+    </body>
+    </html>
+    '''
+
+@app.route('/api/trigger/fetch', methods=['POST'])
+def trigger_fetch():
+    """Trigger data fetch operation"""
+    try:
+        limit = request.json.get('limit', 100)
+        
+        # Run fetch command in background
+        def run_fetch():
+            subprocess.run([
+                'python', '-m', 'src.tabc_scrape.cli',
+                'fetch', '--limit', str(limit)
+            ], check=True)
+        
+        thread = threading.Thread(target=run_fetch, daemon=True)
+        thread.start()
+        
+        return jsonify({'status': 'started', 'message': 'Fetch operation started'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/trigger/enrich', methods=['POST'])
+def trigger_enrich():
+    """Trigger data enrichment operation"""
+    try:
+        limit = request.json.get('limit', 10)
+        
+        # Run enrich command in background
+        def run_enrich():
+            subprocess.run([
+                'python', '-m', 'src.tabc_scrape.cli',
+                'enrich', '--limit', str(limit)
+            ], check=True)
+        
+        thread = threading.Thread(target=run_enrich, daemon=True)
+        thread.start()
+        
+        return jsonify({'status': 'started', 'message': 'Enrichment operation started'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/workflow/full', methods=['POST'])
+def run_full_workflow():
+    """Run the complete pipeline"""
+    try:
+        limit = request.json.get('limit', 50)
+        
+        workflow = WorkflowManager()
+        
+        # Run in background
+        def run_async():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            result = loop.run_until_complete(workflow.run_full_pipeline(limit))
+            logger.info(f"Workflow completed: {result}")
+        
+        thread = threading.Thread(target=run_async, daemon=True)
+        thread.start()
+        
+        return jsonify({
+            'status': 'started',
+            'message': f'Full pipeline started with limit={limit}'
+        })
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 def run_server(host='0.0.0.0', port=5000, debug=False):

@@ -188,6 +188,9 @@ The application can be configured using environment variables:
 - `TABC_API_URL`: Override the default Texas Comptroller API URL
 - `TABC_DB_URL`: Override the default database URL
 - `TABC_SCRAPING_DELAY`: Set delay between scraping requests (seconds)
+- `CENSUS_API_KEY`: Optional Census API key for better rate limits
+- `APP_TOKEN`: Optional Socrata App Token for API access
+- `ENVIRONMENT`: Set to 'dev' or 'prod' (default: dev)
 
 ### Database Configuration
 
@@ -201,6 +204,45 @@ By default, the application uses SQLite (`sqlite:///tabc_restaurants.db`). You c
 export TABC_DB_URL="postgresql://user:password@localhost/tabc_data"
 tabc-scrape fetch
 ```
+
+## Replit Deployment
+
+This project can be deployed on Replit for easy web-based access to the data pipeline.
+
+### Setup in Replit
+
+1. **Import the Project**: Upload or clone this repository to Replit.
+
+2. **Install Dependencies**: Replit will automatically install dependencies from `pyproject.toml` or `requirements.txt`.
+
+3. **Environment Variables**: Set the following in Replit's Secrets tab:
+   - `CENSUS_API_KEY`: Your Census API key (optional)
+   - `APP_TOKEN`: Your Socrata App Token (optional)
+   - `TABC_DB_URL`: Database URL (default: `sqlite:///tabc_restaurants.db`)
+   - `ENVIRONMENT`: Set to `dev`
+
+4. **Run the App**: The `.replit` file is configured to run `replit_app.py`, which starts the web server.
+
+### Using the Web Interface
+
+Once deployed, access the dashboard at your Replit app URL:
+- **Dashboard**: View system status, statistics, and recent data
+- **Fetch Data**: Trigger data collection from the API
+- **Enrich Data**: Run the enrichment pipeline
+- **Export Data**: Download enriched data as CSV
+- **Full Pipeline**: Run the complete fetch and enrich process
+
+### API Endpoints
+
+The web server provides RESTful endpoints:
+- `GET /`: Main dashboard
+- `GET /status`: System status and statistics
+- `GET /metrics`: Prometheus metrics
+- `GET /api/enriched-data`: Get enriched data (JSON)
+- `GET /api/enriched-data/csv`: Get enriched data (CSV)
+- `POST /api/trigger/fetch`: Trigger data fetch
+- `POST /api/trigger/enrich`: Trigger data enrichment
+- `POST /api/workflow/full`: Run full pipeline
 
 ## Data Pipeline Overview
 
