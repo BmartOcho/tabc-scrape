@@ -89,6 +89,7 @@ class DatabaseManager:
         for sql in indexes:
             try:
                 with self.engine.connect() as conn:
+                    # Use proper SQLAlchemy 2.0+ syntax
                     conn.execute(text(sql))
                     conn.commit()
                 logger.info(f"Created index: {sql}")

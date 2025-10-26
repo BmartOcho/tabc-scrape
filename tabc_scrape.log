@@ -17380,3 +17380,253 @@ WHERE restaurants.id = ?
 2025-10-25 17:58:50,066 - src.tabc_scrape.data.api_client - INFO - Fetched batch of 1000 records (offset: 0)
 2025-10-25 17:58:50,067 - src.tabc_scrape.data.api_client - INFO - Already reached limit of -1 records
 2025-10-25 17:58:50,067 - src.tabc_scrape.data.api_client - INFO - Successfully fetched 0 restaurant records
+2025-10-25 19:04:53,582 - src.tabc_scrape.storage.database - INFO - Initialized database with URL: sqlite:///dev_tabc_restaurants.db
+2025-10-25 19:04:53,583 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,584 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("restaurants")
+2025-10-25 19:04:53,584 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 19:04:53,585 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("concept_classifications")
+2025-10-25 19:04:53,586 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 19:04:53,586 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("population_data")
+2025-10-25 19:04:53,587 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 19:04:53,587 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("square_footage_data")
+2025-10-25 19:04:53,587 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 19:04:53,588 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("enrichment_jobs")
+2025-10-25 19:04:53,588 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 19:04:53,588 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("data_quality_metrics")
+2025-10-25 19:04:53,588 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-10-25 19:04:53,589 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,589 - src.tabc_scrape.storage.database - INFO - Database tables created successfully
+2025-10-25 19:04:53,590 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,590 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 19:04:53,591 - sqlalchemy.engine.Engine - INFO - [generated in 0.00066s] ()
+2025-10-25 19:04:53,591 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,591 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_city ON restaurants (location_city)
+2025-10-25 19:04:53,591 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,591 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 19:04:53,591 - sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] ()
+2025-10-25 19:04:53,592 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,592 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location_state ON restaurants (location_state)
+2025-10-25 19:04:53,592 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,592 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 19:04:53,592 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 19:04:53,592 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,592 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_total_receipts ON restaurants (total_receipts)
+2025-10-25 19:04:53,592 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,593 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_latitude ON restaurants (latitude)
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,593 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,593 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_longitude ON restaurants (longitude)
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,594 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_restaurant_location ON restaurants (location_city, location_state)
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 19:04:53,594 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,595 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_confidence ON concept_classifications (confidence)
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,595 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_concept_source ON concept_classifications (source)
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 19:04:53,595 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 19:04:53,596 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,596 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_1_mile ON population_data (population_1_mile)
+2025-10-25 19:04:53,596 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,596 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 19:04:53,596 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,596 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,596 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_3_mile ON population_data (population_3_mile)
+2025-10-25 19:04:53,596 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,597 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_5_mile ON population_data (population_5_mile)
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 19:04:53,597 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,598 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_population_10_mile ON population_data (population_10_mile)
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,598 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_square_footage ON square_footage_data (square_footage)
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 19:04:53,598 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ()
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,599 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_sqft_confidence ON square_footage_data (confidence)
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,599 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_status ON enrichment_jobs (status)
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 19:04:53,599 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,600 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,600 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_job_type ON enrichment_jobs (job_type)
+2025-10-25 19:04:53,600 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,600 - sqlalchemy.engine.Engine - INFO - CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 19:04:53,600 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2025-10-25 19:04:53,600 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,600 - src.tabc_scrape.storage.database - INFO - Created index: CREATE INDEX IF NOT EXISTS ix_quality_overall_score ON data_quality_metrics (overall_quality_score)
+2025-10-25 19:04:53,608 - src.tabc_scrape.scraping.concept_classifier - ERROR - Failed to initialize AI components: File is not a zip file
+2025-10-25 19:04:53,608 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting full enrichment pipeline
+2025-10-25 19:04:53,619 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,622 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants
+ LIMIT ? OFFSET ?
+2025-10-25 19:04:53,622 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] (5, 0)
+2025-10-25 19:04:53,624 - src.tabc_scrape.storage.database - INFO - Retrieved 5 restaurant records from database
+2025-10-25 19:04:53,624 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,625 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Enriching 5 restaurants
+2025-10-25 19:04:53,625 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Processing batch 1: restaurants 1-2
+2025-10-25 19:04:53,625 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting batch enrichment for 2 restaurants
+2025-10-25 19:04:53,625 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting enrichment for restaurant row-hsta~8g63-pbsx
+2025-10-25 19:04:53,626 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,627 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 19:04:53,627 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ('row-hsta~8g63-pbsx', 1, 0)
+2025-10-25 19:04:53,628 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,628 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Classifying concept for FUZZYS TACO SHOP
+2025-10-25 19:04:53,628 - src.tabc_scrape.scraping.concept_classifier - INFO - Scraping concept for FUZZYS TACO SHOP at 10101 SLIDE RD STE 100, LUBBOCK, TX 79424
+2025-10-25 19:04:53,630 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting enrichment for restaurant row-4uvi.mpbj.v5rr
+2025-10-25 19:04:53,631 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:53,631 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 19:04:53,631 - sqlalchemy.engine.Engine - INFO - [cached since 0.004839s ago] ('row-4uvi.mpbj.v5rr', 1, 0)
+2025-10-25 19:04:53,632 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:53,633 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Classifying concept for FRISCO LAKES GOLF CLUB
+2025-10-25 19:04:53,633 - src.tabc_scrape.scraping.concept_classifier - INFO - Scraping concept for FRISCO LAKES GOLF CLUB at 7170 ANTHEM DR, FRISCO, TX 75034
+2025-10-25 19:04:53,772 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Analyzing population data for FUZZYS TACO SHOP
+2025-10-25 19:04:53,772 - src.tabc_scrape.analysis.population - INFO - Analyzing population for FUZZYS TACO SHOP at 10101 SLIDE RD STE 100, LUBBOCK, TX 79424
+2025-10-25 19:04:53,772 - src.tabc_scrape.analysis.population - INFO - Geocoding address: 10101 SLIDE RD STE 100, LUBBOCK, TX 79424
+2025-10-25 19:04:53,777 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Analyzing population data for FRISCO LAKES GOLF CLUB
+2025-10-25 19:04:53,778 - src.tabc_scrape.analysis.population - INFO - Analyzing population for FRISCO LAKES GOLF CLUB at 7170 ANTHEM DR, FRISCO, TX 75034
+2025-10-25 19:04:53,778 - src.tabc_scrape.analysis.population - INFO - Geocoding address: 7170 ANTHEM DR, FRISCO, TX 75034
+2025-10-25 19:04:54,901 - src.tabc_scrape.analysis.population - INFO - Geocoded to: 33.1390749, -96.9088017
+2025-10-25 19:04:54,901 - src.tabc_scrape.analysis.population - INFO - Cached geocoding result for: 7170 ANTHEM DR, FRISCO, TX 75034
+2025-10-25 19:04:54,901 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 33.1390749, -96.9088017
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 33.1390749, -96.9088017
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Estimated 5340 people within 1 miles
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 33.1390749, -96.9088017
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Estimated 25500 people within 3 miles
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 33.1390749, -96.9088017
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Estimated 25500 people within 5 miles
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 33.1390749, -96.9088017
+2025-10-25 19:04:54,902 - src.tabc_scrape.analysis.population - INFO - Estimated 25500 people within 10 miles
+2025-10-25 19:04:54,903 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:04:54,904 - sqlalchemy.engine.Engine - INFO - DELETE FROM population_data WHERE population_data.restaurant_id = ?
+2025-10-25 19:04:54,904 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('row-4uvi.mpbj.v5rr',)
+2025-10-25 19:04:54,907 - src.tabc_scrape.storage.database - INFO - Stored population data for restaurant row-4uvi.mpbj.v5rr
+2025-10-25 19:04:54,909 - sqlalchemy.engine.Engine - INFO - INSERT INTO population_data (restaurant_id, population_1_mile, population_3_mile, population_5_mile, population_10_mile, drinking_age_1_mile, drinking_age_3_mile, drinking_age_5_mile, drinking_age_10_mile, median_income_1_mile, median_age_1_mile, average_household_size_1_mile, source, confidence, census_data_available, analyzed_at, last_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id, analyzed_at, last_updated
+2025-10-25 19:04:54,909 - sqlalchemy.engine.Engine - INFO - [generated in 0.00031s] ('row-4uvi.mpbj.v5rr', 5340, 25500, 25500, 25500, 4005, 19125, 19125, 19125, 42500.0, 31.2, 2.3, 'zip_estimation', 0.8, 1)
+2025-10-25 19:04:54,911 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:04:54,916 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Population analysis completed: 5,340 people within 1 mile
+2025-10-25 19:04:54,916 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Scraping square footage for FRISCO LAKES GOLF CLUB
+2025-10-25 19:04:54,916 - src.tabc_scrape.scraping.square_footage - INFO - Scraping square footage for FRISCO LAKES GOLF CLUB at 7170 ANTHEM DR, FRISCO, TX 75034
+2025-10-25 19:04:55,607 - src.tabc_scrape.analysis.population - WARNING - Geocoding failed for: 10101 SLIDE RD STE 100, LUBBOCK, TX 79424
+2025-10-25 19:04:55,607 - src.tabc_scrape.analysis.population - WARNING - Could not geocode address: 10101 SLIDE RD STE 100, LUBBOCK, TX 79424
+2025-10-25 19:04:55,607 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Scraping square footage for FUZZYS TACO SHOP
+2025-10-25 19:04:55,607 - src.tabc_scrape.scraping.square_footage - INFO - Scraping square footage for FUZZYS TACO SHOP at 10101 SLIDE RD STE 100, LUBBOCK, TX 79424
+2025-10-25 19:05:10,179 - src.tabc_scrape.scraping.square_footage - INFO - Square footage scraping result: None sqft from none (confidence: 0.00)
+2025-10-25 19:05:10,179 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Enrichment completed for row-4uvi.mpbj.v5rr in 16.55s
+2025-10-25 19:05:10,868 - src.tabc_scrape.scraping.square_footage - INFO - Square footage scraping result: None sqft from none (confidence: 0.00)
+2025-10-25 19:05:10,868 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Enrichment completed for row-hsta~8g63-pbsx in 17.24s
+2025-10-25 19:05:10,869 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Progress: 2/5 completed, 2 successful
+2025-10-25 19:05:10,869 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Processing batch 2: restaurants 3-4
+2025-10-25 19:05:10,869 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting batch enrichment for 2 restaurants
+2025-10-25 19:05:10,870 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting enrichment for restaurant row-e4y7-2xzz_2ekb
+2025-10-25 19:05:10,870 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:05:10,871 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 19:05:10,871 - sqlalchemy.engine.Engine - INFO - [cached since 17.24s ago] ('row-e4y7-2xzz_2ekb', 1, 0)
+2025-10-25 19:05:10,872 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:05:10,872 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Classifying concept for THE VAULT
+2025-10-25 19:05:10,872 - src.tabc_scrape.scraping.concept_classifier - INFO - Scraping concept for THE VAULT at 424 SCHATZEL ST, CORPUS CHRISTI, TX 78401
+2025-10-25 19:05:10,872 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting enrichment for restaurant row-xyc3.7urd-uhbw
+2025-10-25 19:05:10,873 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:05:10,873 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 19:05:10,873 - sqlalchemy.engine.Engine - INFO - [cached since 17.25s ago] ('row-xyc3.7urd-uhbw', 1, 0)
+2025-10-25 19:05:10,874 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:05:10,874 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Classifying concept for HOOTERS
+2025-10-25 19:05:10,874 - src.tabc_scrape.scraping.concept_classifier - INFO - Scraping concept for HOOTERS at 410 EAST FREEWAY 83, MC ALLEN, TX 78503
+2025-10-25 19:05:10,990 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Analyzing population data for HOOTERS
+2025-10-25 19:05:10,990 - src.tabc_scrape.analysis.population - INFO - Analyzing population for HOOTERS at 410 EAST FREEWAY 83, MC ALLEN, TX 78503
+2025-10-25 19:05:10,990 - src.tabc_scrape.analysis.population - INFO - Geocoding address: 410 EAST FREEWAY 83, MC ALLEN, TX 78503
+2025-10-25 19:05:10,991 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Analyzing population data for THE VAULT
+2025-10-25 19:05:10,991 - src.tabc_scrape.analysis.population - INFO - Analyzing population for THE VAULT at 424 SCHATZEL ST, CORPUS CHRISTI, TX 78401
+2025-10-25 19:05:10,991 - src.tabc_scrape.analysis.population - INFO - Geocoding address: 424 SCHATZEL ST, CORPUS CHRISTI, TX 78401
+2025-10-25 19:05:13,125 - src.tabc_scrape.analysis.population - WARNING - Geocoding failed for: 424 SCHATZEL ST, CORPUS CHRISTI, TX 78401
+2025-10-25 19:05:13,125 - src.tabc_scrape.analysis.population - WARNING - Could not geocode address: 424 SCHATZEL ST, CORPUS CHRISTI, TX 78401
+2025-10-25 19:05:13,125 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Scraping square footage for THE VAULT
+2025-10-25 19:05:13,125 - src.tabc_scrape.scraping.square_footage - INFO - Scraping square footage for THE VAULT at 424 SCHATZEL ST, CORPUS CHRISTI, TX 78401
+2025-10-25 19:05:15,370 - src.tabc_scrape.analysis.population - WARNING - Geocoding failed for: 410 EAST FREEWAY 83, MC ALLEN, TX 78503
+2025-10-25 19:05:15,370 - src.tabc_scrape.analysis.population - WARNING - Could not geocode address: 410 EAST FREEWAY 83, MC ALLEN, TX 78503
+2025-10-25 19:05:15,370 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Scraping square footage for HOOTERS
+2025-10-25 19:05:15,370 - src.tabc_scrape.scraping.square_footage - INFO - Scraping square footage for HOOTERS at 410 EAST FREEWAY 83, MC ALLEN, TX 78503
+2025-10-25 19:05:28,377 - src.tabc_scrape.scraping.square_footage - INFO - Square footage scraping result: None sqft from none (confidence: 0.00)
+2025-10-25 19:05:28,377 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Enrichment completed for row-e4y7-2xzz_2ekb in 17.51s
+2025-10-25 19:05:30,653 - src.tabc_scrape.scraping.square_footage - INFO - Square footage scraping result: None sqft from none (confidence: 0.00)
+2025-10-25 19:05:30,653 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Enrichment completed for row-xyc3.7urd-uhbw in 19.78s
+2025-10-25 19:05:30,653 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Progress: 4/5 completed, 4 successful
+2025-10-25 19:05:30,653 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Processing batch 3: restaurants 5-5
+2025-10-25 19:05:30,653 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting batch enrichment for 1 restaurants
+2025-10-25 19:05:30,654 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Starting enrichment for restaurant row-pxuz.47rg.mn6z
+2025-10-25 19:05:30,654 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:05:30,654 - sqlalchemy.engine.Engine - INFO - SELECT restaurants.id AS restaurants_id, restaurants.taxpayer_number AS restaurants_taxpayer_number, restaurants.taxpayer_name AS restaurants_taxpayer_name, restaurants.taxpayer_address AS restaurants_taxpayer_address, restaurants.taxpayer_city AS restaurants_taxpayer_city, restaurants.taxpayer_state AS restaurants_taxpayer_state, restaurants.taxpayer_zip AS restaurants_taxpayer_zip, restaurants.taxpayer_county AS restaurants_taxpayer_county, restaurants.location_number AS restaurants_location_number, restaurants.location_name AS restaurants_location_name, restaurants.location_address AS restaurants_location_address, restaurants.location_city AS restaurants_location_city, restaurants.location_state AS restaurants_location_state, restaurants.location_zip AS restaurants_location_zip, restaurants.location_county AS restaurants_location_county, restaurants.tabc_permit_number AS restaurants_tabc_permit_number, restaurants.responsibility_begin_date AS restaurants_responsibility_begin_date, restaurants.responsibility_end_date AS restaurants_responsibility_end_date, restaurants.obligation_end_date AS restaurants_obligation_end_date, restaurants.liquor_receipts AS restaurants_liquor_receipts, restaurants.wine_receipts AS restaurants_wine_receipts, restaurants.beer_receipts AS restaurants_beer_receipts, restaurants.cover_charge_receipts AS restaurants_cover_charge_receipts, restaurants.total_receipts AS restaurants_total_receipts, restaurants.latitude AS restaurants_latitude, restaurants.longitude AS restaurants_longitude, restaurants.geocoding_confidence AS restaurants_geocoding_confidence, restaurants.data_quality_score AS restaurants_data_quality_score, restaurants.is_active AS restaurants_is_active, restaurants.last_updated AS restaurants_last_updated, restaurants.created_at AS restaurants_created_at 
+FROM restaurants 
+WHERE restaurants.id = ?
+ LIMIT ? OFFSET ?
+2025-10-25 19:05:30,655 - sqlalchemy.engine.Engine - INFO - [cached since 37.03s ago] ('row-pxuz.47rg.mn6z', 1, 0)
+2025-10-25 19:05:30,655 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:05:30,656 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Classifying concept for THE GOLDEN LEAF
+2025-10-25 19:05:30,656 - src.tabc_scrape.scraping.concept_classifier - INFO - Scraping concept for THE GOLDEN LEAF at 252 CAMP ST, ALLEYTON, TX 78935
+2025-10-25 19:05:30,770 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Analyzing population data for THE GOLDEN LEAF
+2025-10-25 19:05:30,770 - src.tabc_scrape.analysis.population - INFO - Analyzing population for THE GOLDEN LEAF at 252 CAMP ST, ALLEYTON, TX 78935
+2025-10-25 19:05:30,770 - src.tabc_scrape.analysis.population - INFO - Geocoding address: 252 CAMP ST, ALLEYTON, TX 78935
+2025-10-25 19:05:31,068 - src.tabc_scrape.analysis.population - INFO - Geocoded to: 29.7116471, -96.4864667
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Cached geocoding result for: 252 CAMP ST, ALLEYTON, TX 78935
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 29.7116471, -96.4864667
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 29.7116471, -96.4864667
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Estimated 5340 people within 1 miles
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 29.7116471, -96.4864667
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Estimated 25500 people within 3 miles
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 29.7116471, -96.4864667
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Estimated 25500 people within 5 miles
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Fetching census data for coordinates: 29.7116471, -96.4864667
+2025-10-25 19:05:31,069 - src.tabc_scrape.analysis.population - INFO - Estimated 25500 people within 10 miles
+2025-10-25 19:05:31,070 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-10-25 19:05:31,070 - sqlalchemy.engine.Engine - INFO - DELETE FROM population_data WHERE population_data.restaurant_id = ?
+2025-10-25 19:05:31,070 - sqlalchemy.engine.Engine - INFO - [cached since 36.17s ago] ('row-pxuz.47rg.mn6z',)
+2025-10-25 19:05:31,072 - src.tabc_scrape.storage.database - INFO - Stored population data for restaurant row-pxuz.47rg.mn6z
+2025-10-25 19:05:31,073 - sqlalchemy.engine.Engine - INFO - INSERT INTO population_data (restaurant_id, population_1_mile, population_3_mile, population_5_mile, population_10_mile, drinking_age_1_mile, drinking_age_3_mile, drinking_age_5_mile, drinking_age_10_mile, median_income_1_mile, median_age_1_mile, average_household_size_1_mile, source, confidence, census_data_available, analyzed_at, last_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id, analyzed_at, last_updated
+2025-10-25 19:05:31,074 - sqlalchemy.engine.Engine - INFO - [cached since 36.16s ago] ('row-pxuz.47rg.mn6z', 5340, 25500, 25500, 25500, 4005, 19125, 19125, 19125, 42500.0, 31.2, 2.3, 'zip_estimation', 0.8, 1)
+2025-10-25 19:05:31,074 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-10-25 19:05:31,080 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Population analysis completed: 5,340 people within 1 mile
+2025-10-25 19:05:31,080 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Scraping square footage for THE GOLDEN LEAF
+2025-10-25 19:05:31,080 - src.tabc_scrape.scraping.square_footage - INFO - Scraping square footage for THE GOLDEN LEAF at 252 CAMP ST, ALLEYTON, TX 78935
+2025-10-25 19:05:46,329 - src.tabc_scrape.scraping.square_footage - INFO - Square footage scraping result: None sqft from none (confidence: 0.00)
+2025-10-25 19:05:46,330 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Enrichment completed for row-pxuz.47rg.mn6z in 15.68s
+2025-10-25 19:05:46,330 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Progress: 5/5 completed, 5 successful
+2025-10-25 19:05:46,330 - src.tabc_scrape.storage.enrichment_pipeline - INFO - Pipeline completed: 5/5 successful in 52.71s
