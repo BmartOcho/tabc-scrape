@@ -7,6 +7,7 @@ import logging
 import time
 import subprocess
 import threading
+import numpy as np
 from flask import Flask, jsonify, request, Response
 from .config import config
 from .storage.database import DatabaseManager
@@ -141,6 +142,8 @@ def get_enriched_data():
             logger.warning("No enriched data available")
             return jsonify({'error': 'No enriched data available'}), 404
 
+        # Replace NaN and inf values with None for valid JSON serialization
+        df = df.replace([np.nan, np.inf, -np.inf], None)
         data = df.to_dict('records')
         logger.info(f"Returning {len(data)} enriched restaurant records")
         return jsonify(data)
@@ -210,7 +213,6 @@ def dashboard():
     <html>
     <head>
         <title>TABC Restaurant Data Pipeline</title>
-        <meta charset="UTF-8">
         <style>
             body { font-family: Arial, sans-serif; margin: 40px; }
             .card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
@@ -231,45 +233,45 @@ def dashboard():
         </style>
     </head>
     <body>
-        <h1>TABC Restaurant Data Pipeline</h1>
-
+        <h1>🍽️ TABC Restaurant Data Pipeline</h1>
+        
         <div class="card">
             <h2>System Status</h2>
             <div id="status">Loading...</div>
         </div>
-
+        
         <div class="card">
             <h2>Data Collection</h2>
             <button class="button" onclick="fetchData()">Fetch Restaurant Data</button>
             <button class="button" onclick="enrichData()">Enrich Data</button>
             <button class="button" onclick="exportData()">Export Data</button>
         </div>
-
+        
         <div class="card">
             <h2>Statistics</h2>
             <div id="stats">Loading...</div>
         </div>
-
+        
         <div class="card">
             <h2>Recent Data</h2>
             <div id="recent-data">Loading...</div>
         </div>
-
+        
         <script>
             async function loadStatus() {
                 const response = await fetch('/status');
                 const data = await response.json();
-
+                
                 const statusDiv = document.getElementById('status');
                 statusDiv.innerHTML = `
                     <div class="status ${data.database_connected ? 'success' : 'error'}">
-                        Database: ${data.database_connected ? '[OK] Connected' : '[ERROR] Disconnected'}
+                        Database: ${data.database_connected ? '✓ Connected' : '✗ Disconnected'}
                     </div>
                     <div class="status ${data.api_connected ? 'success' : 'error'}">
-                        API: ${data.api_connected ? '[OK] Connected' : '[ERROR] Disconnected'}
+                        API: ${data.api_connected ? '✓ Connected' : '✗ Disconnected'}
                     </div>
                 `;
-
+                
                 const statsDiv = document.getElementById('stats');
                 const stats = data.enrichment_stats;
                 statsDiv.innerHTML = `
@@ -279,11 +281,11 @@ def dashboard():
                     <p><strong>With Square Footage:</strong> ${stats.restaurants_with_square_footage || 0}</p>
                 `;
             }
-
+            
             async function loadRecentData() {
                 const response = await fetch('/api/enriched-data?limit=5');
                 const data = await response.json();
-
+                
                 const dataDiv = document.getElementById('recent-data');
                 if (Array.isArray(data) && data.length > 0) {
                     dataDiv.innerHTML = '<table style="width:100%; border-collapse: collapse;">' +
@@ -302,7 +304,7 @@ def dashboard():
                     dataDiv.innerHTML = '<p>No data available yet. Fetch some data to get started!</p>';
                 }
             }
-
+            
             async function fetchData() {
                 alert('Fetching data... This may take a few minutes.');
                 const response = await fetch('/api/trigger/fetch', { method: 'POST', body: JSON.stringify({ limit: 100 }), headers: { 'Content-Type': 'application/json' } });
@@ -310,7 +312,7 @@ def dashboard():
                 alert(result.message || result.error);
                 window.location.reload();
             }
-
+            
             async function enrichData() {
                 alert('Enriching data... This may take several minutes.');
                 const response = await fetch('/api/trigger/enrich', { method: 'POST', body: JSON.stringify({ limit: 10 }), headers: { 'Content-Type': 'application/json' } });
@@ -318,15 +320,15 @@ def dashboard():
                 alert(result.message || result.error);
                 window.location.reload();
             }
-
+            
             async function exportData() {
                 window.location.href = '/api/enriched-data/csv';
             }
-
+            
             // Load data on page load
             loadStatus();
             loadRecentData();
-
+            
             // Refresh every 30 seconds
             setInterval(() => {
                 loadStatus();
@@ -335,7 +337,7 @@ def dashboard():
         </script>
     </body>
     </html>
-    '''.encode('utf-8').decode('utf-8')
+    '''
 
 @app.route('/api/trigger/fetch', methods=['POST'])
 def trigger_fetch():
